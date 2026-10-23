@@ -23,7 +23,6 @@ import { CampusCalendar } from "./CampusCalendar";
 import { OrganizerHub } from "./OrganizerHub";
 import { PassesAlerts } from "./PassesAlerts";
 import { RegisterModal } from "./RegisterModal";
-import { DevOpsFooter } from "./DevOpsFooter";
 
 interface ModalState {
   eventId: string;
@@ -210,7 +209,6 @@ export function PortalApp() {
         />
       )}
 
-      <DevOpsFooter />
     </div>
   );
 }
