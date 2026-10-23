@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Discover, register and participate in MIT-ADT University School of Computing events with digital gate passes, organizer tools and sprint metrics.",
+          "Discover, register and participate in MIT-ADT University School of Computing events with digital gate passes, a dynamic campus calendar and organizer tools.",
       },
       { property: "og:title", content: "MIT-ADT Campus Event Portal" },
       {
