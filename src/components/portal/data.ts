@@ -287,17 +287,3 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   },
 ];
 
-export const BUILD_LOGS = [
-  "$ gh run watch 8842 --portal-frontend",
-  "✓ Triggering via GitHub Actions (push → main)",
-  "▸ Job #1  install-bun         14s   bun install --frozen-lockfile",
-  "▸ Job #2  typecheck           9s    tsgo --noEmit        ✓ 0 errors",
-  "▸ Job #3  unit-tests          21s   vitest run           ✓ 13/13 passed",
-  "▸ Job #4  build               38s   vite build           ✓ bundle 312 kB",
-  "▸ Job #5  docker-image        31s   docker build -t portal-backend:v2.1-live",
-  "▸ Job #6  deploy-edge         12s   wrangler deploy      ✓ live",
-  "",
-  "Quality Gate: DoD Satisfied (13/13 Unit Tests Passed)",
-  "CI Pipeline: Passing — merged to main @ 8f3c1d2",
-  "Container: portal-backend:v2.1-live — healthcheck 200 OK",
-];
