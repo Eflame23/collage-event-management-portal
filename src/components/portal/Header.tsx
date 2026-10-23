@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Bell, CalendarDays, Search } from "lucide-react";
 import crestAsset from "@/assets/mit-adt-logo.jpg.asset.json";
 import { STUDENT } from "./data";
@@ -17,6 +18,7 @@ interface HeaderProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   unreadCount: number;
+  passesCount: number;
 }
 
 export function Header({
@@ -25,6 +27,7 @@ export function Header({
   searchQuery,
   onSearchChange,
   unreadCount,
+  passesCount,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-portal-gold/30 bg-portal-purple/95 shadow-portal backdrop-blur-md">
@@ -48,26 +51,22 @@ export function Header({
             >
               MIT-ADT UNIVERSITY
             </p>
-            <p className="mt-0.5 flex items-center gap-2 text-[11px] font-semibold text-portal-gold sm:text-xs">
+            <p className="mt-0.5 text-[11px] font-semibold text-portal-gold sm:text-xs">
               Campus Event Management Portal
-              <span aria-hidden className="h-3 w-px bg-portal-gold/50" />
-              <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-portal-gold-soft">
-                School of Computing
-              </span>
             </p>
           </div>
         </div>
 
-        {/* Integrated search */}
-        <div className="relative mx-1 hidden min-w-0 flex-1 md:block lg:max-w-xs">
+        {/* Dedicated search with breathing room before the tabs */}
+        <div className="relative mr-6 hidden w-52 shrink-0 md:block lg:w-64">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60" />
           <input
             type="search"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search..."
+            placeholder="Search events..."
             aria-label="Search events"
-            className="w-full rounded-full border border-white/20 bg-white/10 py-2 pl-9 pr-4 text-sm text-white placeholder:text-white/50 focus:border-portal-gold focus:outline-none focus:ring-1 focus:ring-portal-gold"
+            className="w-full rounded-full border border-white/15 bg-white/10 py-2 pl-9 pr-4 text-sm text-white placeholder:text-slate-300 transition-colors focus:border-portal-gold focus:bg-white/20 focus:outline-none"
           />
         </div>
 
@@ -106,7 +105,7 @@ export function Header({
           })}
         </nav>
 
-        {/* Bell + profile capsule */}
+        {/* Bell + compact profile avatar */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
@@ -121,16 +120,58 @@ export function Header({
               </span>
             )}
           </button>
-          <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 py-1 pl-1 pr-2.5 sm:pr-3">
-            <span className="flex size-7 items-center justify-center rounded-full bg-portal-gold text-[11px] font-extrabold text-white">
-              {STUDENT.initials}
-            </span>
-            <span className="hidden text-xs font-semibold text-white sm:block">
-              {STUDENT.name} | {STUDENT.division}
-            </span>
-          </div>
+          <ProfilePopover unreadCount={unreadCount} passesCount={passesCount} />
         </div>
       </div>
     </header>
+  );
+}
+
+function ProfilePopover({ unreadCount, passesCount }: { unreadCount: number; passesCount: number }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative shrink-0">
+      <button
+        type="button"
+        aria-label="Open profile menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="flex size-9 cursor-pointer items-center justify-center rounded-full bg-portal-gold text-xs font-bold text-portal-purple ring-2 ring-white/20 transition-all hover:ring-portal-gold"
+      >
+        {STUDENT.initials}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-11 z-50 w-64 overflow-hidden rounded-2xl border border-portal-hairline bg-card shadow-portal">
+          <div className="border-b border-portal-hairline px-4 py-3">
+            <p className="font-bold text-foreground">{STUDENT.name}</p>
+            <p className="text-xs text-muted-foreground">Division: {STUDENT.division}</p>
+            <span className="mt-2 inline-flex items-center rounded-full bg-portal-gold-soft px-2 py-0.5 text-[10px] font-semibold text-portal-gold-text">
+              Verified Student Attendee • MIT-ADT
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 px-4 py-3">
+            <div className="rounded-xl bg-secondary px-3 py-2">
+              <p className="text-lg font-extrabold text-portal-regal">{passesCount}</p>
+              <p className="text-[10px] font-semibold text-muted-foreground">Registered Passes</p>
+            </div>
+            <div className="rounded-xl bg-secondary px-3 py-2">
+              <p className="text-lg font-extrabold text-portal-magenta">{unreadCount}</p>
+              <p className="text-[10px] font-semibold text-muted-foreground">Unread Alerts</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

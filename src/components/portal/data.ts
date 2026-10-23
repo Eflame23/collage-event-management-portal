@@ -1,7 +1,3 @@
-import codefusionImg from "@/assets/codefusion.jpg";
-import nrityaImg from "@/assets/nritya.jpg";
-import quizImg from "@/assets/quiz.jpg";
-import uiuxImg from "@/assets/uiux.jpg";
 import karadAsset from "@/assets/karad-portrait.jpg.asset.json";
 
 export const KARAD_PORTRAIT = karadAsset.url;
@@ -160,7 +156,8 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     dateLabel: seedDateLabel(3, 10),
     capacity: 100,
     taken: 78,
-    image: codefusionImg,
+    image:
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "evt-nritya",
@@ -173,7 +170,8 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     dateLabel: seedDateLabel(5, 11),
     capacity: 150,
     taken: 150,
-    image: nrityaImg,
+    image:
+      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80",
     statusNote: "Cultural / Full",
   },
   {
@@ -187,7 +185,8 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     dateLabel: seedDateLabel(8, 14),
     capacity: 40,
     taken: 35,
-    image: uiuxImg,
+    image:
+      "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "evt-quiz",
@@ -200,7 +199,64 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     dateLabel: seedDateLabel(10, 13),
     capacity: 60,
     taken: 12,
-    image: quizImg,
+    image:
+      "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-robotwars",
+    code: "RW511",
+    title: "RobotWars Arena",
+    category: "Technical",
+    description:
+      "Team-vs-team combat robotics showdown — design, build and pilot bots in the Innovation Lab arena.",
+    venue: "Innovation Lab",
+    dateLabel: seedDateLabel(11, 9),
+    capacity: 50,
+    taken: 18,
+    image:
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-acoustic",
+    code: "AU902",
+    title: "Acoustic Unplugged",
+    category: "Cultural",
+    description:
+      "An intimate evening of acoustic sets, indie bands and open-mic performances under the open sky.",
+    venue: "Amphitheatre",
+    dateLabel: seedDateLabel(15, 18),
+    capacity: 120,
+    taken: 45,
+    image:
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-esummit",
+    code: "ES776",
+    title: "E-Summit: Pitch Tank",
+    category: "Competitions",
+    description:
+      "Startup pitch competition where student founders face investor judges for funding and incubation offers.",
+    venue: "Main Auditorium",
+    dateLabel: seedDateLabel(18, 16),
+    capacity: 80,
+    taken: 20,
+    image:
+      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-cloud",
+    code: "CD645",
+    title: "Cloud & DevOps Bootcamp",
+    category: "Workshops",
+    description:
+      "Two-day hands-on bootcamp covering cloud infrastructure, CI/CD pipelines and container orchestration.",
+    venue: "Lab 5, IT Block",
+    dateLabel: seedDateLabel(21, 9),
+    capacity: 40,
+    taken: 28,
+    image:
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
   },
 ];
 
