@@ -67,7 +67,7 @@ export interface NotificationItem {
 /* year, so seed dates and parsing are built on native Date methods.   */
 /* ------------------------------------------------------------------ */
 
-const MONTH_PREFIXES = [
+const MONTH_PREFIXES: string[] = [
   "jan",
   "feb",
   "mar",
@@ -80,7 +80,7 @@ const MONTH_PREFIXES = [
   "oct",
   "nov",
   "dec",
-] as const;
+];
 
 /** Parses "24 May 2025, 10:00 AM" (or any "DD Month YYYY" label) into a Date. */
 export function parseEventDate(dateLabel: string): Date | null {
