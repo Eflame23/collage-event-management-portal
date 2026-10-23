@@ -2,9 +2,9 @@ import codefusionImg from "@/assets/codefusion.jpg";
 import nrityaImg from "@/assets/nritya.jpg";
 import quizImg from "@/assets/quiz.jpg";
 import uiuxImg from "@/assets/uiux.jpg";
-import heroPortrait from "@/assets/hero-portrait.jpg";
+import karadAsset from "@/assets/karad-portrait.jpg.asset.json";
 
-export const HERO_PORTRAIT = heroPortrait;
+export const KARAD_PORTRAIT = karadAsset.url;
 
 export type EventCategory = "Technical" | "Cultural" | "Workshops" | "Competitions";
 

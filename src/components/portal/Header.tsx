@@ -1,5 +1,5 @@
 import { Bell, CalendarDays, Search } from "lucide-react";
-import crestAsset from "@/assets/mit-adt-crest.png.asset.json";
+import crestAsset from "@/assets/mit-adt-logo.jpg.asset.json";
 import { STUDENT } from "./data";
 
 export const TABS = [
@@ -27,21 +27,33 @@ export function Header({
   unreadCount,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-portal-purple shadow-portal">
+    <header className="sticky top-0 z-40 border-b border-portal-gold/30 bg-portal-purple/95 shadow-portal backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
         {/* Crest emblem + wordmark */}
-        <div className="flex shrink-0 items-center gap-2.5">
-          <img
-            src={crestAsset.url}
-            alt="MIT-ADT University crest"
-            className="h-10 w-10 rounded-full border-2 border-portal-gold bg-white object-cover sm:h-12 sm:w-12"
-          />
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-md ring-2 ring-portal-gold sm:h-14 sm:w-14">
+            <img
+              src={crestAsset.url}
+              alt="MIT-ADT University crest"
+              className="size-full object-cover"
+            />
+          </span>
           <div className="hidden leading-tight sm:block">
-            <p className="font-display text-base font-bold tracking-wide text-white sm:text-lg">
+            <p
+              className="font-display text-base font-bold tracking-wider text-white sm:text-lg"
+              style={{
+                textShadow:
+                  "0 1px 3px color-mix(in oklab, var(--portal-gold) 55%, transparent)",
+              }}
+            >
               MIT-ADT UNIVERSITY
             </p>
-            <p className="text-[11px] font-semibold text-portal-gold sm:text-xs">
+            <p className="mt-0.5 flex items-center gap-2 text-[11px] font-semibold text-portal-gold sm:text-xs">
               Campus Event Management Portal
+              <span aria-hidden className="h-3 w-px bg-portal-gold/50" />
+              <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-portal-gold-soft">
+                School of Computing
+              </span>
             </p>
           </div>
         </div>
