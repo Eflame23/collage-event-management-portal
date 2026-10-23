@@ -4,7 +4,7 @@ import { BUILD_LOGS } from "./data";
 
 const STATUS_ITEMS = [
   { label: "CI Pipeline: Passing (GitHub Actions)" },
-  { label: "Quality Gate: DoD Satisfied (14/14 Unit Tests Passed)" },
+  { label: "Quality Gate: DoD Satisfied (13/13 Unit Tests Passed)" },
   { label: "Container: portal-backend:v2.1-live (Docker)" },
 ];
 
