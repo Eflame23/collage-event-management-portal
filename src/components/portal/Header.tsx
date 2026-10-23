@@ -1,11 +1,11 @@
-import { Bell, Search } from "lucide-react";
+import { Bell, CalendarDays, Search } from "lucide-react";
 import crestAsset from "@/assets/mit-adt-crest.png.asset.json";
 import { STUDENT } from "./data";
 
 export const TABS = [
   "Discovery & Events",
+  "Campus Calendar",
   "Organizer Hub",
-  "Sprint Metrics",
   "My Passes & Alerts",
 ] as const;
 
@@ -73,9 +73,16 @@ export function Header({
                   active ? "text-white" : "text-white/70 hover:text-white"
                 }`}
               >
-                <span className={`block max-w-[7rem] ${tab === "Discovery & Events" ? "text-center" : ""}`}>
-                  {tab}
-                </span>
+                {tab === "Campus Calendar" ? (
+                  <span className="flex items-center justify-center gap-1">
+                    <CalendarDays className="size-3.5" aria-hidden />
+                    {tab}
+                  </span>
+                ) : (
+                  <span className={`block max-w-[7rem] ${tab === "Discovery & Events" ? "text-center" : ""}`}>
+                    {tab}
+                  </span>
+                )}
                 {active && (
                   <span
                     aria-hidden

@@ -1,4 +1,4 @@
-import { BadgeCheck, CalendarDays, MapPin, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, CalendarDays, Download, MapPin, ShieldCheck, X } from "lucide-react";
 import { type CampusEvent, STUDENT } from "./data";
 import { seatPercent } from "./portal-logic";
 import { QrCode } from "./QrCode";
@@ -22,14 +22,16 @@ export function RegisterModal({ event, stage, ticketId, onClose, onConfirm }: Re
       onClick={onClose}
     >
       <div
-        className="relative my-8 w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-portal"
+        className={`relative my-8 w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-portal ${
+          stage === "pass" ? "gate-pass-printable" : ""
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3 top-3 z-10 rounded-full p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          className="print-hide absolute right-3 top-3 z-10 rounded-full p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
           <X className="size-4.5" />
         </button>
@@ -168,6 +170,15 @@ function PassStage({ event, ticketId }: { event: CampusEvent; ticketId: string }
           </span>
           <span className="font-mono text-sm font-bold text-portal-regal">{ticketId}</span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="print-hide mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-portal-purple py-2.5 text-sm font-bold text-white shadow-portal transition-colors hover:bg-portal-regal"
+        >
+          <Download className="size-4" />
+          Download Pass (PDF)
+        </button>
 
         <p className="text-center text-[11px] text-muted-foreground">
           Present this pass at the entry gate. Carrying a copy on your phone is sufficient.

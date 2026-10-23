@@ -142,3 +142,44 @@
 @utility scrollbar-thin {
   scrollbar-width: thin;
 }
+
+/*
+ * Print stylesheet for the Digital Event Gate Pass.
+ * window.print() from the pass modal isolates the .gate-pass-printable card
+ * so the browser's "Save as PDF" produces a clean, single-page ticket.
+ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .gate-pass-printable,
+  .gate-pass-printable * {
+    visibility: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .gate-pass-printable {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .gate-pass-printable .print-hide {
+    display: none !important;
+  }
+}

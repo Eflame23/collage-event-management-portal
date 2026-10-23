@@ -19,8 +19,8 @@ import {
 } from "./portal-logic";
 import { Header, type TabName } from "./Header";
 import { DiscoveryTab } from "./DiscoveryTab";
+import { CampusCalendar } from "./CampusCalendar";
 import { OrganizerHub } from "./OrganizerHub";
-import { SprintMetrics } from "./SprintMetrics";
 import { PassesAlerts } from "./PassesAlerts";
 import { RegisterModal } from "./RegisterModal";
 import { DevOpsFooter } from "./DevOpsFooter";
@@ -180,7 +180,15 @@ export function PortalApp() {
         {activeTab === "Organizer Hub" && (
           <OrganizerHub events={events} onPublish={handlePublish} onEmergencyCancel={handleEmergencyCancel} />
         )}
-        {activeTab === "Sprint Metrics" && <SprintMetrics />}
+        {activeTab === "Campus Calendar" && (
+          <CampusCalendar
+            events={events}
+            registeredIds={registeredIds}
+            onRegister={(event) => setModal({ eventId: event.id, stage: "confirm" })}
+            onViewPass={handleViewPass}
+            onJoinWaitlist={handleJoinWaitlist}
+          />
+        )}
         {activeTab === "My Passes & Alerts" && (
           <PassesAlerts
             passes={passes}
