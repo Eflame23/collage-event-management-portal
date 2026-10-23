@@ -1,5 +1,5 @@
 import { CalendarDays, MapPin, Search, Users } from "lucide-react";
-import { type CampusEvent, CATEGORIES, HERO_PORTRAIT } from "./data";
+import { type CampusEvent, CATEGORIES, KARAD_PORTRAIT } from "./data";
 import { categoryCounts, matchesSearch, seatPercent } from "./portal-logic";
 
 interface DiscoveryTabProps {
@@ -51,11 +51,16 @@ export function DiscoveryTab({
               aria-hidden
               className="absolute -inset-3 rounded-3xl bg-portal-purple/10 rotate-3"
             />
-            <img
-              src={HERO_PORTRAIT}
-              alt="MIT-ADT faculty speaker in festive attire"
-              className="relative h-40 w-32 rounded-2xl border border-portal-hairline object-cover shadow-portal sm:h-48 sm:w-40"
-            />
+            <figure className="relative overflow-hidden rounded-2xl border border-amber-200/50 shadow-lg">
+              <img
+                src={KARAD_PORTRAIT}
+                alt="Prof. Dr. Vishwanath D. Karad, Founder President of MIT-ADT University"
+                className="h-60 w-48 object-cover object-top sm:w-56"
+              />
+              <figcaption className="absolute inset-x-0 bottom-0 bg-portal-regal/55 px-2 py-1.5 text-center text-[10px] font-semibold leading-snug text-white backdrop-blur-sm sm:text-[11px]">
+                Prof. Dr. Vishwanath D. Karad | Founder President
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
