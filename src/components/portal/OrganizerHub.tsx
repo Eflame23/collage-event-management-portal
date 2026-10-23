@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CalendarDays, Megaphone, Send, Users } from "lucide-react";
-import { CATEGORIES, type CampusEvent, type EventCategory, type EventDraft } from "./data";
+import { CATEGORIES, formatEventDate, type CampusEvent, type EventCategory, type EventDraft } from "./data";
 
 interface OrganizerHubProps {
   events: CampusEvent[];
@@ -208,6 +208,6 @@ const inputClass =
 
 function formatDateLabel(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${String(d).padStart(2, "0")} ${months[m - 1]} ${y}, 10:00 AM`;
+  // Dynamic formatting via native Date methods — no hardcoded month names.
+  return formatEventDate(new Date(y!, (m ?? 1) - 1, d!), 10);
 }
