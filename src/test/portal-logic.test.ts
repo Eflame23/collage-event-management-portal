@@ -80,3 +80,27 @@ describe("portal registration rules", () => {
     expect(makeTicketId(published[0]!)).toMatch(/^MIT-ADT-2025-/);
   });
 });
+
+describe("event catalog", () => {
+  it("ships exactly 8 distinct events with unique banners", () => {
+    expect(INITIAL_EVENTS).toHaveLength(8);
+    expect(new Set(INITIAL_EVENTS.map((e) => e.title)).size).toBe(8);
+    expect(new Set(INITIAL_EVENTS.map((e) => e.image)).size).toBe(8);
+  });
+
+  it("balances the catalog at 2 events per category", () => {
+    const counts = INITIAL_EVENTS.reduce<Record<string, number>>((acc, e) => {
+      acc[e.category] = (acc[e.category] ?? 0) + 1;
+      return acc;
+    }, {});
+    expect(counts).toEqual({ Technical: 2, Cultural: 2, Workshops: 2, Competitions: 2 });
+  });
+
+  it("preserves the seed seat counts", () => {
+    const codefusion = INITIAL_EVENTS.find((e) => e.title === "CodeFusion 2.0")!;
+    expect(codefusion.taken).toBe(78);
+    expect(codefusion.capacity).toBe(100);
+    const nritya = INITIAL_EVENTS.find((e) => e.title === "Nritya Utsav 2025")!;
+    expect(nritya.taken).toBe(nritya.capacity);
+  });
+});
