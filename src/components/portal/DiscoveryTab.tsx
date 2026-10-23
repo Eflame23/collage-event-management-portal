@@ -58,7 +58,10 @@ export function DiscoveryTab({
                 className="h-60 w-48 object-cover object-top sm:w-56"
               />
               <figcaption className="absolute inset-x-0 bottom-0 bg-portal-regal/55 px-2 py-1.5 text-center text-[10px] font-semibold leading-snug text-white backdrop-blur-sm sm:text-[11px]">
-                Prof. Dr. Vishwanath D. Karad | Founder President
+                Prof. Dr. Vishwanath D. Karad
+                <span className="block text-[9px] font-medium text-white/85 sm:text-[10px]">
+                  Founder President
+                </span>
               </figcaption>
             </figure>
           </div>
