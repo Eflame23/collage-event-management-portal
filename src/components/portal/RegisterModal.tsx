@@ -1,5 +1,5 @@
-import { BadgeCheck, CalendarDays, Download, MapPin, ShieldCheck, X } from "lucide-react";
-import { type CampusEvent, STUDENT } from "./data";
+import { BadgeCheck, CalendarDays, CircleCheck, Download, MapPin, ShieldCheck, X } from "lucide-react";
+import { type CampusEvent } from "./data";
 import { seatPercent } from "./portal-logic";
 import { QrCode } from "./QrCode";
 
@@ -7,12 +7,27 @@ interface RegisterModalProps {
   event: CampusEvent;
   /** "confirm" for a fresh registration, "pass" to view an existing pass. */
   stage: "confirm" | "pass";
+  /** The signed-in student's Enrollment ID (`session.userId`). */
+  enrollmentId: string;
+  /** Avatar initials for the signed-in student. */
+  initials: string;
   ticketId: string;
+  /** True once the organizer has scanned this pass at the gate. */
+  checkedIn?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export function RegisterModal({ event, stage, ticketId, onClose, onConfirm }: RegisterModalProps) {
+export function RegisterModal({
+  event,
+  stage,
+  enrollmentId,
+  initials,
+  ticketId,
+  checkedIn = false,
+  onClose,
+  onConfirm,
+}: RegisterModalProps) {
   return (
     <div
       role="dialog"
@@ -37,9 +52,21 @@ export function RegisterModal({ event, stage, ticketId, onClose, onConfirm }: Re
         </button>
 
         {stage === "confirm" ? (
-          <ConfirmStage event={event} onConfirm={onConfirm} onClose={onClose} />
+          <ConfirmStage
+            event={event}
+            enrollmentId={enrollmentId}
+            initials={initials}
+            onConfirm={onConfirm}
+            onClose={onClose}
+          />
         ) : (
-          <PassStage event={event} ticketId={ticketId} />
+          <PassStage
+            event={event}
+            enrollmentId={enrollmentId}
+            initials={initials}
+            ticketId={ticketId}
+            checkedIn={checkedIn}
+          />
         )}
       </div>
     </div>
@@ -48,9 +75,11 @@ export function RegisterModal({ event, stage, ticketId, onClose, onConfirm }: Re
 
 function ConfirmStage({
   event,
+  enrollmentId,
+  initials,
   onConfirm,
   onClose,
-}: Pick<RegisterModalProps, "event" | "onConfirm" | "onClose">) {
+}: Pick<RegisterModalProps, "event" | "enrollmentId" | "initials" | "onConfirm" | "onClose">) {
   const pct = seatPercent(event);
   return (
     <div>
@@ -73,13 +102,14 @@ function ConfirmStage({
           </p>
           <div className="mt-3 flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-full bg-portal-gold text-sm font-extrabold text-white">
-              {STUDENT.initials}
+              {initials}
             </span>
-            <div>
-              <p className="text-sm font-bold text-foreground">
-                {STUDENT.name} | {STUDENT.division}
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Enrollment ID
               </p>
-              <p className="text-xs text-muted-foreground">Roll {STUDENT.roll} · Verified student</p>
+              <p className="break-all font-mono text-sm font-bold text-foreground">{enrollmentId}</p>
+              <p className="text-xs text-muted-foreground">Verified student</p>
             </div>
             <BadgeCheck className="ml-auto size-5 text-portal-ok" />
           </div>
@@ -119,7 +149,19 @@ function ConfirmStage({
   );
 }
 
-function PassStage({ event, ticketId }: { event: CampusEvent; ticketId: string }) {
+function PassStage({
+  event,
+  enrollmentId,
+  initials,
+  ticketId,
+  checkedIn,
+}: {
+  event: CampusEvent;
+  enrollmentId: string;
+  initials: string;
+  ticketId: string;
+  checkedIn: boolean;
+}) {
   return (
     <div>
       <div className="bg-portal-gold px-6 py-5 text-center">
@@ -150,18 +192,25 @@ function PassStage({ event, ticketId }: { event: CampusEvent; ticketId: string }
         <div className="flex items-center justify-between rounded-xl border border-portal-hairline bg-portal-cream px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-full bg-portal-gold text-xs font-extrabold text-white">
-              {STUDENT.initials}
+              {initials}
             </span>
-            <div>
-              <p className="text-sm font-bold text-foreground">{STUDENT.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {STUDENT.division} | Roll {STUDENT.roll}
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Enrollment ID
               </p>
+              <p className="break-all font-mono text-sm font-bold text-foreground">{enrollmentId}</p>
             </div>
           </div>
-          <span className="rounded-full bg-portal-gold-soft px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-portal-gold-text">
-            Valid
-          </span>
+          {checkedIn ? (
+            <span className="flex items-center gap-1 rounded-full bg-portal-ok/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-portal-ok">
+              <CircleCheck className="size-3" aria-hidden />
+              Checked In
+            </span>
+          ) : (
+            <span className="rounded-full bg-portal-gold-soft px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-portal-gold-text">
+              Valid
+            </span>
+          )}
         </div>
 
         <div className="flex items-center justify-between border-t border-dashed border-portal-hairline pt-4">

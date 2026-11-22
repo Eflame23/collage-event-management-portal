@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, CalendarDays, CircleAlert, Info, Moon, Search, Sun } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  CircleAlert,
+  Info,
+  Lock,
+  LogOut,
+  Moon,
+  Search,
+  Sun,
+} from "lucide-react";
 import crestAsset from "@/assets/mit-adt-logo.jpg.asset.json";
-import { STUDENT, type NotificationItem } from "./data";
+import { type NotificationItem } from "./data";
+import { ROLE_ID_LABELS, ROLE_LABELS, roleBadge, type SessionProfile } from "./portal-logic";
 
 export const TABS = [
   "Discovery & Events",
@@ -23,6 +34,9 @@ interface HeaderProps {
   onMarkAllRead: () => void;
   theme: "light" | "dark";
   onThemeToggle: () => void;
+  /** The signed-in user (built from the ID entered at login). */
+  session: SessionProfile;
+  onLogout: () => void;
 }
 
 export function Header({
@@ -36,11 +50,14 @@ export function Header({
   onMarkAllRead,
   theme,
   onThemeToggle,
+  session,
+  onLogout,
 }: HeaderProps) {
+  const role = session.role;
   return (
     <header className="sticky top-0 z-40 border-b border-portal-gold/30 bg-portal-purple/95 shadow-portal backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
-        {/* Crest emblem + wordmark */}
+      <div className="flex w-full items-center justify-between gap-6 px-6 py-3 lg:px-10">
+        {/* Left: crest emblem + wordmark */}
         <div className="flex shrink-0 items-center gap-3">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-md ring-2 ring-portal-gold sm:h-14 sm:w-14">
             <img
@@ -51,7 +68,7 @@ export function Header({
           </span>
           <div className="hidden leading-tight sm:block">
             <p
-              className="font-display text-base font-bold tracking-wider text-white sm:text-lg"
+              className="font-display text-base font-bold tracking-wider text-white xl:text-lg"
               style={{
                 textShadow:
                   "0 1px 3px color-mix(in oklab, var(--portal-gold) 55%, transparent)",
@@ -65,8 +82,8 @@ export function Header({
           </div>
         </div>
 
-        {/* Dedicated search with breathing room before the tabs */}
-        <div className="relative mr-6 hidden w-52 shrink-0 md:block lg:w-64">
+        {/* Search: fills the space between the logo and the nav tabs */}
+        <div className="relative hidden min-w-[9rem] max-w-md flex-1 md:block">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60" />
           <input
             type="search"
@@ -79,7 +96,7 @@ export function Header({
         </div>
 
         {/* Nav tabs */}
-        <nav className="scrollbar-thin flex min-w-0 flex-1 items-end gap-1 overflow-x-auto md:flex-none md:justify-end">
+        <nav className="scrollbar-thin flex min-w-0 items-center gap-2 overflow-x-auto max-md:flex-1 lg:gap-4">
           {TABS.map((tab) => {
             const active = tab === activeTab;
             return (
@@ -88,24 +105,30 @@ export function Header({
                 type="button"
                 onClick={() => onTabChange(tab)}
                 aria-current={active ? "page" : undefined}
-                className={`relative whitespace-nowrap rounded-t-md px-2.5 pb-2.5 pt-1.5 text-[13px] font-semibold leading-tight transition-colors sm:px-3 ${
-                  active ? "text-white" : "text-white/70 hover:text-white"
+                className={`relative shrink-0 whitespace-nowrap rounded-md px-3.5 py-2 text-sm font-semibold leading-tight transition-colors lg:text-[15px] ${
+                  active ? "text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {tab === "Campus Calendar" ? (
-                  <span className="flex items-center justify-center gap-1">
-                    <CalendarDays className="size-3.5" aria-hidden />
+                  <span className="flex items-center justify-center gap-1.5">
+                    <CalendarDays className="size-4" aria-hidden />
                     {tab}
+                  </span>
+                ) : tab === "Organizer Hub" && role === "student" ? (
+                  <span
+                    className="flex items-center justify-center gap-1.5"
+                    title="Faculty / Admin role required"
+                  >
+                    {tab}
+                    <Lock className="size-3.5 opacity-70" aria-label="Restricted" />
                   </span>
                 ) : (
-                  <span className={`block max-w-[7rem] ${tab === "Discovery & Events" ? "text-center" : ""}`}>
-                    {tab}
-                  </span>
+                  <span className="block">{tab}</span>
                 )}
                 {active && (
                   <span
                     aria-hidden
-                    className="absolute inset-x-1 bottom-0 h-[3px] rounded-full bg-portal-gold"
+                    className="absolute inset-x-2 bottom-0 h-[3px] rounded-full bg-portal-gold"
                   />
                 )}
               </button>
@@ -113,8 +136,8 @@ export function Header({
           })}
         </nav>
 
-        {/* Notifications, theme, and compact profile avatar */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        {/* Far right: notifications, theme toggle, profile avatar */}
+        <div className="flex shrink-0 items-center gap-3">
           <NotificationPopover
             notifications={notifications}
             unreadCount={unreadCount}
@@ -130,7 +153,12 @@ export function Header({
           >
             {theme === "light" ? <Moon className="size-5" /> : <Sun className="size-5" />}
           </button>
-          <ProfilePopover unreadCount={unreadCount} passesCount={passesCount} />
+          <ProfilePopover
+            unreadCount={unreadCount}
+            passesCount={passesCount}
+            session={session}
+            onLogout={onLogout}
+          />
         </div>
       </div>
     </header>
@@ -240,17 +268,35 @@ function NotificationPopover({
   );
 }
 
-function ProfilePopover({ unreadCount, passesCount }: { unreadCount: number; passesCount: number }) {
+function ProfilePopover({
+  unreadCount,
+  passesCount,
+  session,
+  onLogout,
+}: {
+  unreadCount: number;
+  passesCount: number;
+  session: SessionProfile;
+  onLogout: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const { role } = session;
 
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [open]);
 
   return (
@@ -259,29 +305,55 @@ function ProfilePopover({ unreadCount, passesCount }: { unreadCount: number; pas
         type="button"
         aria-label="Open profile menu"
         aria-expanded={open}
+        title={`${session.displayName} (${ROLE_LABELS[role]})`}
         onClick={() => setOpen((v) => !v)}
         className="flex size-9 cursor-pointer items-center justify-center rounded-full bg-portal-gold text-xs font-bold text-portal-purple ring-2 ring-white/20 transition-all hover:ring-portal-gold"
       >
-        {STUDENT.initials}
+        {session.initials}
       </button>
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-64 overflow-hidden rounded-2xl border border-portal-hairline bg-card shadow-portal">
+        <div className="absolute right-0 top-11 z-50 w-72 overflow-hidden rounded-2xl border border-portal-hairline bg-card shadow-portal">
           <div className="border-b border-portal-hairline px-4 py-3">
-            <p className="font-bold text-foreground">{STUDENT.name}</p>
-            <p className="text-xs text-muted-foreground">Division: {STUDENT.division}</p>
+            <p className="break-all font-mono text-sm font-bold text-foreground">
+              {session.displayName}
+            </p>
+            <p className="text-xs text-muted-foreground">{session.subtitle}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {ROLE_ID_LABELS[role]}:{" "}
+              <span className="break-all font-mono font-semibold text-foreground">
+                {session.userId}
+              </span>
+            </p>
             <span className="mt-2 inline-flex items-center rounded-full bg-portal-gold-soft px-2 py-0.5 text-[10px] font-semibold text-portal-gold-text">
-              Verified Student Attendee • MIT-ADT
+              {roleBadge(role)}
             </span>
           </div>
+
           <div className="grid grid-cols-2 gap-2 px-4 py-3">
             <div className="rounded-xl bg-secondary px-3 py-2">
               <p className="text-lg font-extrabold text-portal-regal">{passesCount}</p>
-              <p className="text-[10px] font-semibold text-muted-foreground">Registered Passes</p>
+              <p className="text-[10px] font-semibold text-muted-foreground">
+                {role === "student" ? "Registered Passes" : "My Passes"}
+              </p>
             </div>
             <div className="rounded-xl bg-secondary px-3 py-2">
               <p className="text-lg font-extrabold text-portal-magenta">{unreadCount}</p>
               <p className="text-[10px] font-semibold text-muted-foreground">Unread Alerts</p>
             </div>
+          </div>
+
+          <div className="border-t border-portal-hairline p-3">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive px-4 py-2.5 text-sm font-bold text-destructive-foreground shadow-sm transition-colors hover:bg-destructive/90"
+            >
+              <LogOut className="size-4" aria-hidden />
+              Log Out
+            </button>
           </div>
         </div>
       )}
