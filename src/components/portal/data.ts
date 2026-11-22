@@ -1,6 +1,6 @@
-import karadAsset from "@/assets/karad-portrait.jpg.asset.json";
+import karadUrl from "@/assets/karad.jpg";
 
-export const KARAD_PORTRAIT = karadAsset.url;
+export const KARAD = "/karad.jpg";
 
 export type EventCategory = "Technical" | "Cultural" | "Workshops" | "Competitions";
 
