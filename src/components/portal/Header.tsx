@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, CalendarDays, Search } from "lucide-react";
+import { Bell, CalendarDays, CircleAlert, Info, Moon, Search, Sun } from "lucide-react";
 import crestAsset from "@/assets/mit-adt-logo.jpg.asset.json";
-import { STUDENT } from "./data";
+import { STUDENT, type NotificationItem } from "./data";
 
 export const TABS = [
   "Discovery & Events",
@@ -19,6 +19,10 @@ interface HeaderProps {
   onSearchChange: (value: string) => void;
   unreadCount: number;
   passesCount: number;
+  notifications: NotificationItem[];
+  onMarkAllRead: () => void;
+  theme: "light" | "dark";
+  onThemeToggle: () => void;
 }
 
 export function Header({
@@ -28,6 +32,10 @@ export function Header({
   onSearchChange,
   unreadCount,
   passesCount,
+  notifications,
+  onMarkAllRead,
+  theme,
+  onThemeToggle,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-portal-gold/30 bg-portal-purple/95 shadow-portal backdrop-blur-md">
@@ -105,25 +113,130 @@ export function Header({
           })}
         </nav>
 
-        {/* Bell + compact profile avatar */}
+        {/* Notifications, theme, and compact profile avatar */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <NotificationPopover
+            notifications={notifications}
+            unreadCount={unreadCount}
+            onMarkAllRead={onMarkAllRead}
+          />
           <button
             type="button"
-            aria-label={`Notifications, ${unreadCount} unread`}
-            onClick={() => onTabChange("My Passes & Alerts")}
-            className="relative rounded-full p-2 text-white transition-colors hover:bg-white/10"
+            aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            aria-pressed={theme === "dark"}
+            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            onClick={onThemeToggle}
+            className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
           >
-            <Bell className="size-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex size-4.5 items-center justify-center rounded-full bg-portal-magenta text-[10px] font-bold text-white shadow-[0_0_8px_var(--portal-magenta)]">
-                {unreadCount}
-              </span>
-            )}
+            {theme === "light" ? <Moon className="size-5" /> : <Sun className="size-5" />}
           </button>
           <ProfilePopover unreadCount={unreadCount} passesCount={passesCount} />
         </div>
       </div>
     </header>
+  );
+}
+
+function NotificationPopover({
+  notifications,
+  unreadCount,
+  onMarkAllRead,
+}: {
+  notifications: NotificationItem[];
+  unreadCount: number;
+  onMarkAllRead: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative shrink-0">
+      <button
+        type="button"
+        aria-label={`Notifications, ${unreadCount} unread`}
+        aria-expanded={open}
+        aria-controls="live-notifications"
+        onClick={() => setOpen((value) => !value)}
+        className="relative rounded-full p-2 text-white transition-colors hover:bg-white/10"
+      >
+        <Bell className="size-5" />
+        {unreadCount > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 flex size-4.5 items-center justify-center rounded-full bg-portal-magenta text-[10px] font-bold text-white shadow-[0_0_8px_var(--portal-magenta)]">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+      {open && (
+        <section
+          id="live-notifications"
+          aria-label="Live notifications"
+          className="absolute right-0 top-11 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-portal-hairline bg-card shadow-portal"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-portal-hairline px-4 py-3">
+            <div>
+              <h2 className="text-sm font-bold text-foreground">Notifications</h2>
+              <p className="text-[11px] text-muted-foreground">
+                {unreadCount} unread
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onMarkAllRead}
+              disabled={unreadCount === 0}
+              className="text-xs font-bold text-portal-gold-text transition-colors hover:text-portal-gold disabled:cursor-default disabled:opacity-50"
+            >
+              Mark all as read
+            </button>
+          </div>
+          <div className="max-h-96 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                You’re all caught up.
+              </p>
+            ) : (
+              notifications.map((item) => {
+                const ItemIcon = item.kind === "alert" ? CircleAlert : Info;
+                return (
+                  <article
+                    key={item.id}
+                    className="flex gap-3 border-b border-portal-hairline px-4 py-3 last:border-b-0 hover:bg-secondary/60"
+                  >
+                    <span className="relative mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary">
+                      <ItemIcon
+                        className={`size-4 ${item.kind === "alert" ? "text-destructive" : "text-portal-gold-text"}`}
+                        aria-hidden
+                      />
+                      {item.unread && (
+                        <span
+                          aria-label="Unread"
+                          className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-portal-magenta"
+                        />
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-bold leading-snug text-foreground">{item.title}</p>
+                        <time className="shrink-0 text-[10px] text-muted-foreground">{item.time}</time>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{item.body}</p>
+                    </div>
+                  </article>
+                );
+              })
+            )}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
 

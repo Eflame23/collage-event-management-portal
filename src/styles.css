@@ -58,6 +58,10 @@
   --color-portal-magenta: var(--portal-magenta);
   --color-portal-ok: var(--portal-ok);
   --color-portal-terminal: var(--portal-terminal);
+  --color-category-technical: var(--category-technical);
+  --color-category-cultural: var(--category-cultural);
+  --color-category-workshop: var(--category-workshop);
+  --color-category-competition: var(--category-competition);
 
   --font-display: "Fraunces", "Georgia", serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -68,7 +72,7 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.973 0.005 95.1);
+  --background: oklch(0.964 0.006 250);
   --foreground: oklch(0.223 0.073 324.1);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.223 0.073 324.1);
@@ -76,16 +80,16 @@
   --popover-foreground: oklch(0.223 0.073 324.1);
   --primary: oklch(0.267 0.095 324.2);
   --primary-foreground: oklch(0.985 0.005 95.1);
-  --secondary: oklch(0.955 0.008 95.1);
+  --secondary: oklch(0.932 0.01 255);
   --secondary-foreground: oklch(0.267 0.095 324.2);
-  --muted: oklch(0.955 0.008 95.1);
+  --muted: oklch(0.932 0.01 255);
   --muted-foreground: oklch(0.5 0.04 324.1);
   --accent: oklch(0.93 0.043 89.4);
   --accent-foreground: oklch(0.542 0.104 86.1);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.005 95.1);
-  --border: oklch(0.929 0.013 255.5);
-  --input: oklch(0.929 0.013 255.5);
+  --border: oklch(0.9 0.018 255);
+  --input: oklch(0.9 0.018 255);
   --ring: oklch(0.71 0.134 87.2);
 
   --portal-purple: oklch(0.267 0.095 324.2);
@@ -94,33 +98,47 @@
   --portal-gold: oklch(0.71 0.134 87.2);
   --portal-gold-soft: oklch(0.93 0.043 89.4);
   --portal-gold-text: oklch(0.542 0.104 86.1);
-  --portal-cream: oklch(0.973 0.005 95.1);
-  --portal-hairline: oklch(0.929 0.013 255.5);
+  --portal-cream: oklch(1 0 0);
+  --portal-hairline: oklch(0.9 0.018 255);
   --portal-magenta: oklch(0.633 0.224 350.7);
   --portal-ok: oklch(0.75 0.16 155);
   --portal-terminal: oklch(0.18 0.05 324.1);
+  --category-technical: oklch(0.48 0.13 324);
+  --category-cultural: oklch(0.54 0.104 86.1);
+  --category-workshop: oklch(0.52 0.14 248);
+  --category-competition: oklch(0.52 0.14 155);
 }
 
 .dark {
-  --background: oklch(0.18 0.05 324.1);
+  --background: oklch(0.145 0.032 323);
   --foreground: oklch(0.96 0.01 95.1);
-  --card: oklch(0.23 0.07 324.1);
+  --card: oklch(0.205 0.042 322);
   --card-foreground: oklch(0.96 0.01 95.1);
-  --popover: oklch(0.23 0.07 324.1);
+  --popover: oklch(0.205 0.042 322);
   --popover-foreground: oklch(0.96 0.01 95.1);
   --primary: oklch(0.71 0.134 87.2);
-  --primary-foreground: oklch(0.18 0.05 324.1);
-  --secondary: oklch(0.28 0.06 324.1);
+  --primary-foreground: oklch(0.145 0.032 323);
+  --secondary: oklch(0.255 0.04 322);
   --secondary-foreground: oklch(0.96 0.01 95.1);
-  --muted: oklch(0.28 0.06 324.1);
-  --muted-foreground: oklch(0.72 0.03 324.1);
-  --accent: oklch(0.28 0.06 324.1);
+  --muted: oklch(0.255 0.04 322);
+  --muted-foreground: oklch(0.76 0.02 290);
+  --accent: oklch(0.29 0.052 322);
   --accent-foreground: oklch(0.96 0.01 95.1);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0.005 95.1);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
+  --border: color-mix(in oklab, var(--portal-gold) 20%, var(--portal-purple));
+  --input: color-mix(in oklab, var(--portal-gold) 20%, var(--portal-purple));
   --ring: oklch(0.71 0.134 87.2);
+  --portal-regal: oklch(0.96 0.01 95.1);
+  --portal-gold-soft: oklch(0.3 0.06 85);
+  --portal-gold-text: oklch(0.79 0.12 87);
+  --portal-cream: oklch(0.205 0.042 322);
+  --portal-hairline: color-mix(in oklab, var(--portal-gold) 20%, var(--portal-purple));
+  --portal-ok: oklch(0.76 0.14 155);
+  --category-technical: oklch(0.78 0.1 324);
+  --category-cultural: oklch(0.79 0.12 87);
+  --category-workshop: oklch(0.78 0.1 248);
+  --category-competition: oklch(0.76 0.14 155);
 }
 
 @layer base {

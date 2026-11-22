@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { CalendarDays, Megaphone, Send, Users } from "lucide-react";
-import { CATEGORIES, formatEventDate, type CampusEvent, type EventCategory, type EventDraft } from "./data";
+import {
+  CATEGORIES,
+  COVER_IMAGE_PRESETS,
+  formatEventDate,
+  parseEventDate,
+  type CampusEvent,
+  type EventCategory,
+  type EventDraft,
+} from "./data";
 
 interface OrganizerHubProps {
   events: CampusEvent[];
@@ -14,8 +22,10 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
   const [venue, setVenue] = useState("");
   const [date, setDate] = useState("");
   const [capacity, setCapacity] = useState(50);
+  const [imageUrl, setImageUrl] = useState("");
+  const [coverImage, setCoverImage] = useState(COVER_IMAGE_PRESETS[0]?.image ?? "");
 
-  const canPublish = title.trim() && venue.trim() && date && capacity > 0;
+  const canPublish = title.trim() && venue.trim() && date && capacity > 0 && coverImage.trim();
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,17 +36,20 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
       venue: venue.trim(),
       dateLabel: formatDateLabel(date),
       capacity,
+      image: coverImage,
     });
     setTitle("");
     setVenue("");
     setDate("");
     setCapacity(50);
+    setImageUrl("");
+    setCoverImage(COVER_IMAGE_PRESETS[0]?.image ?? "");
   };
 
   return (
     <div className="space-y-6">
       {/* Publish form */}
-      <section className="rounded-2xl border border-portal-hairline bg-card p-6 shadow-portal">
+      <section className="rounded-xl border border-portal-hairline bg-card p-6 shadow-sm">
         <div className="flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-xl bg-portal-gold-soft text-portal-gold-text">
             <Megaphone className="size-5" />
@@ -52,6 +65,7 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
         <form onSubmit={submit} className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Event Title">
             <input
+              required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. RoboWars 3.0"
@@ -73,6 +87,7 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
           </Field>
           <Field label="Venue / Hall">
             <input
+              required
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
               placeholder="e.g. Innovation Lab, SOC"
@@ -81,6 +96,7 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
           </Field>
           <Field label="Date">
             <input
+              required
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -92,16 +108,94 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
               type="number"
               min={1}
               max={999}
+              required
               value={capacity}
               onChange={(e) => setCapacity(Number(e.target.value))}
               className={inputClass}
             />
           </Field>
-          <div className="flex items-end">
+          <div className="space-y-3 sm:col-span-2 lg:col-span-3">
+            <div>
+              <h3 className="text-xs font-bold uppercase text-muted-foreground">Cover Image</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Paste an image link, upload a file, or select a banner.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {COVER_IMAGE_PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  aria-pressed={coverImage === preset.image}
+                  onClick={() => {
+                    setCoverImage(preset.image);
+                    setImageUrl("");
+                  }}
+                  className={`min-w-0 overflow-hidden rounded-lg border text-left transition-colors ${
+                    coverImage === preset.image
+                      ? "border-portal-gold ring-2 ring-portal-gold/30"
+                      : "border-portal-hairline hover:border-portal-gold/60"
+                  }`}
+                >
+                  <img src={preset.image} alt="" className="aspect-video w-full object-cover" />
+                  <span className="block truncate px-2 py-1.5 text-[11px] font-semibold text-foreground">
+                    {preset.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(12rem,20rem)]">
+              <div className="space-y-3">
+                <Field label="Image URL">
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setImageUrl(value);
+                      setCoverImage(value.trim() || COVER_IMAGE_PRESETS[0]?.image || "");
+                    }}
+                    placeholder="https://example.com/event-cover.jpg"
+                    className={inputClass}
+                  />
+                </Field>
+                <Field label="Upload local image">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    aria-label="Upload local event cover image"
+                    onChange={(event) => {
+                      const file = event.currentTarget.files?.[0];
+                      if (!file || !file.type.startsWith("image/")) return;
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        if (typeof reader.result === "string") {
+                          setCoverImage(reader.result);
+                          setImageUrl("");
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                      event.currentTarget.value = "";
+                    }}
+                    className="block w-full rounded-lg border border-portal-hairline bg-background px-3 py-2 text-xs text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-foreground"
+                  />
+                </Field>
+              </div>
+              {coverImage && (
+                <figure className="overflow-hidden rounded-lg border border-portal-hairline bg-secondary">
+                  <img src={coverImage} alt="Selected event cover preview" className="aspect-video w-full object-cover" />
+                  <figcaption className="px-3 py-2 text-[11px] font-semibold text-muted-foreground">
+                    Selected cover preview
+                  </figcaption>
+                </figure>
+              )}
+            </div>
+          </div>
+          <div className="flex items-end justify-end sm:col-span-2 lg:col-span-3">
             <button
               type="submit"
               disabled={!canPublish}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-portal-gold px-4 py-2.5 text-sm font-bold text-white shadow-gold transition-colors hover:bg-portal-gold/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-portal-gold px-4 py-2.5 text-sm font-bold text-white shadow-gold transition-colors hover:bg-portal-gold/90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:min-w-48"
             >
               <Send className="size-4" />
               Publish Event
@@ -111,7 +205,7 @@ export function OrganizerHub({ events, onPublish, onEmergencyCancel }: Organizer
       </section>
 
       {/* Live events table */}
-      <section className="overflow-hidden rounded-2xl border border-portal-hairline bg-card shadow-portal">
+      <section className="overflow-hidden rounded-xl border border-portal-hairline bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-portal-hairline px-6 py-4">
           <h2 className="font-display text-lg font-bold text-portal-regal">Live Event Table</h2>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -207,7 +301,6 @@ const inputClass =
   "w-full rounded-lg border border-portal-hairline bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-portal-gold focus:outline-none focus:ring-2 focus:ring-portal-gold/25";
 
 function formatDateLabel(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  // Dynamic formatting via native Date methods — no hardcoded month names.
-  return formatEventDate(new Date(y!, (m ?? 1) - 1, d!), 10);
+  const parsed = parseEventDate(iso);
+  return parsed ? formatEventDate(parsed, 10) : "";
 }

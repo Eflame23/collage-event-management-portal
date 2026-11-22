@@ -3,13 +3,17 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   MapPin,
+  TicketCheck,
   Users,
   X,
 } from "lucide-react";
 
 import {
   type CampusEvent,
+  type EventCategory,
+  CATEGORIES,
   earliestUpcomingEvent,
   isSameDay,
   monthGridCells,
@@ -20,6 +24,16 @@ import { seatPercent } from "./portal-logic";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 const MAX_CHIPS_PER_CELL = 2;
+const CATEGORY_CHIP_STYLE: Record<EventCategory, string> = {
+  Technical:
+    "border-l-category-technical bg-gradient-to-r from-category-technical/15 to-card text-category-technical",
+  Cultural:
+    "border-l-category-cultural bg-gradient-to-r from-category-cultural/15 to-card text-category-cultural",
+  Workshops:
+    "border-l-category-workshop bg-gradient-to-r from-category-workshop/15 to-card text-category-workshop",
+  Competitions:
+    "border-l-category-competition bg-gradient-to-r from-category-competition/15 to-card text-category-competition",
+};
 
 type CalendarFilter = "all" | "mine";
 
@@ -104,10 +118,73 @@ export function CampusCalendar({
   }
 
   const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const monthEvents = events.filter((event) => {
+    const date = parseEventDate(event.dateLabel);
+    return date?.getFullYear() === view.year && date.getMonth() === view.month;
+  });
+  const registeredThisMonth = monthEvents.filter((event) => registeredIds.has(event.id)).length;
+  const nextUpcoming = getNextUpcomingEvent(events, today);
+  const countdownDays = nextUpcoming
+    ? Math.max(
+        0,
+        Math.ceil(
+          (new Date(
+            nextUpcoming.startsAt.getFullYear(),
+            nextUpcoming.startsAt.getMonth(),
+            nextUpcoming.startsAt.getDate()
+          ).getTime() -
+            todayStart.getTime()) /
+            86_400_000
+        )
+      )
+    : null;
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-2xl border border-portal-hairline bg-card shadow-portal">
+      <section
+        aria-label="Calendar summary"
+        className="grid grid-cols-1 overflow-hidden rounded-xl border border-portal-hairline bg-card shadow-sm sm:grid-cols-3"
+      >
+        <div className="flex items-center gap-3 border-b border-portal-hairline px-4 py-4 sm:border-b-0 sm:border-r sm:px-5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-portal-gold-soft text-portal-gold-text">
+            <CalendarDays className="size-4" aria-hidden />
+          </span>
+          <div>
+            <p className="text-[11px] font-bold uppercase text-muted-foreground">Total Events This Month</p>
+            <p className="text-xl font-extrabold text-foreground">{monthEvents.length}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 border-b border-portal-hairline px-4 py-4 sm:border-b-0 sm:border-r sm:px-5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-category-competition/10 text-category-competition">
+            <TicketCheck className="size-4" aria-hidden />
+          </span>
+          <div>
+            <p className="text-[11px] font-bold uppercase text-muted-foreground">Your Registered Events</p>
+            <p className="text-xl font-extrabold text-foreground">{registeredThisMonth}</p>
+          </div>
+        </div>
+        <div className="flex min-w-0 items-center gap-3 px-4 py-4 sm:px-5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-category-workshop/10 text-category-workshop">
+            <Clock3 className="size-4" aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase text-muted-foreground">Next Upcoming Event</p>
+            <p className="truncate text-sm font-bold text-foreground">
+              {nextUpcoming?.event.title ?? "No upcoming events"}
+            </p>
+          </div>
+          {countdownDays !== null && (
+            <span className="shrink-0 rounded-full bg-portal-gold-soft px-2.5 py-1 text-[10px] font-extrabold text-portal-gold-text">
+              {countdownDays === 0
+                ? "Today"
+                : `In ${countdownDays} day${countdownDays === 1 ? "" : "s"}`}
+            </span>
+          )}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-xl border border-portal-hairline bg-card shadow-sm">
         {/* Header: title + month navigation */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-portal-hairline px-5 py-4">
           <div className="flex items-center gap-3">
@@ -178,6 +255,19 @@ export function CampusCalendar({
           </p>
         </div>
 
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-portal-hairline px-5 py-3 text-[11px] font-semibold text-muted-foreground">
+          <span className="font-bold text-foreground">Categories</span>
+          {CATEGORIES.map((category) => (
+            <span key={category} className="flex items-center gap-1.5">
+              <span
+                aria-hidden
+                className={`h-3 w-1 rounded-sm ${CATEGORY_CHIP_STYLE[category].split(" ")[0]}`}
+              />
+              {category}
+            </span>
+          ))}
+        </div>
+
         {/* Weekday header */}
         <div className="grid grid-cols-7 border-t border-portal-hairline bg-secondary/60 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           {WEEKDAYS.map((day) => (
@@ -197,15 +287,17 @@ export function CampusCalendar({
             return (
               <div
                 key={index}
-                className={`min-h-[6.25rem] border-b border-r border-portal-hairline p-1.5 last:border-r-0 ${
+                className={`relative min-h-[6.25rem] border-b border-r border-portal-hairline p-1.5 transition-transform duration-200 last:border-r-0 hover:z-10 hover:-translate-y-0.5 hover:bg-secondary/60 ${
                   inMonth ? "" : "bg-secondary/50"
-                }`}
+                } ${isToday ? "z-10 bg-portal-gold-soft/25 ring-2 ring-portal-gold ring-inset" : ""}`}
               >
                 {inMonth && (
                   <>
                     <span
                       className={`inline-flex size-6 items-center justify-center rounded-full text-xs font-bold ${
-                        isToday ? "bg-portal-gold text-white" : "text-foreground"
+                        isToday
+                          ? "border border-portal-gold bg-portal-purple text-white ring-2 ring-portal-gold/40"
+                          : "text-foreground"
                       }`}
                     >
                       {day}
@@ -219,10 +311,13 @@ export function CampusCalendar({
                           onClick={() => openEvent(event)}
                         />
                       ))}
-                      {dayEvents.length > MAX_CHIPS_PER_CELL && (
+                      {dayEvents.length > MAX_CHIPS_PER_CELL && dayEvents[MAX_CHIPS_PER_CELL] && (
                         <button
                           type="button"
-                          onClick={() => openEvent(dayEvents[MAX_CHIPS_PER_CELL]!)}
+                          onClick={() => {
+                            const event = dayEvents[MAX_CHIPS_PER_CELL];
+                            if (event) openEvent(event);
+                          }}
                           className="w-full rounded-md px-1.5 py-0.5 text-left text-[10px] font-bold text-portal-gold-text underline-offset-2 hover:underline"
                         >
                           +{dayEvents.length - MAX_CHIPS_PER_CELL} more
@@ -366,10 +461,10 @@ function EventChip({
       type="button"
       onClick={onClick}
       title={`${event.title} — ${event.dateLabel}`}
-      className={`flex w-full items-center gap-1 overflow-hidden rounded-md border px-1.5 py-1 text-left text-[10px] font-semibold leading-tight transition-colors ${
+      className={`flex w-full items-center gap-1 overflow-hidden rounded-md border border-l-4 px-1.5 py-1 text-left text-[10px] font-semibold leading-tight transition-colors ${
         event.cancelled
-          ? "border-destructive/40 bg-destructive/10 text-destructive"
-          : "border-portal-gold/40 bg-portal-gold-soft text-portal-gold-text hover:bg-portal-gold hover:text-white"
+          ? "border-destructive/40 border-l-destructive bg-destructive/10 text-destructive"
+          : `${CATEGORY_CHIP_STYLE[event.category]} hover:brightness-95 dark:hover:brightness-110`
       }`}
     >
       <span className="min-w-0 flex-1 truncate">{event.title}</span>
@@ -384,6 +479,27 @@ function EventChip({
       ) : null}
     </button>
   );
+}
+
+function getNextUpcomingEvent(
+  events: CampusEvent[],
+  now: Date
+): { event: CampusEvent; startsAt: Date } | undefined {
+  return events
+    .filter((event) => !event.cancelled)
+    .map((event) => {
+      const date = parseEventDate(event.dateLabel);
+      if (!date) return null;
+      const startsAt = new Date(date);
+      const minutes = parseEventTime(event.dateLabel);
+      startsAt.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+      return { event, startsAt };
+    })
+    .filter(
+      (entry): entry is { event: CampusEvent; startsAt: Date } =>
+        entry !== null && entry.startsAt.getTime() >= now.getTime()
+    )
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
 }
 
 interface DrawerActionProps {

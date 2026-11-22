@@ -107,7 +107,7 @@ export function publishEvent(events: CampusEvent[], draft: EventDraft): CampusEv
     dateLabel: draft.dateLabel,
     capacity: Math.max(1, draft.capacity),
     taken: 0,
-    image: categoryImages[draft.category],
+    image: draft.image || categoryImages[draft.category],
   };
   return [newEvent, ...events];
 }

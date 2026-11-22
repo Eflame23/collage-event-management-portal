@@ -39,6 +39,7 @@ export interface EventDraft {
   venue: string;
   dateLabel: string;
   capacity: number;
+  image: string;
 }
 
 export interface GatePass {
@@ -57,6 +58,25 @@ export interface NotificationItem {
   unread: boolean;
   kind: "info" | "alert";
 }
+
+export const COVER_IMAGE_PRESETS = [
+  {
+    label: "Tech Lab",
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    label: "Auditorium Stage",
+    image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    label: "Workshop Studio",
+    image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    label: "Sports / Arena",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
+  },
+] as const;
 
 /* ------------------------------------------------------------------ */
 /* Dynamic date helpers — the calendar must never hardcode a month or  */
@@ -80,11 +100,33 @@ const MONTH_PREFIXES: string[] = [
 
 /** Parses "24 May 2025, 10:00 AM" (or any "DD Month YYYY" label) into a Date. */
 export function parseEventDate(dateLabel: string): Date | null {
-  const match = /(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/.exec(dateLabel);
+  const normalized = dateLabel.trim();
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalized);
+  if (isoMatch) {
+    const [, yearText, monthText, dayText] = isoMatch;
+    if (!yearText || !monthText || !dayText) return null;
+    return validatedLocalDate(Number(yearText), Number(monthText) - 1, Number(dayText));
+  }
+
+  const match = /(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/.exec(normalized);
   if (!match) return null;
-  const monthIndex = MONTH_PREFIXES.indexOf(match[2]!.toLowerCase().slice(0, 3));
+  const [, dayText, monthText, yearText] = match;
+  if (!dayText || !monthText || !yearText) return null;
+  const monthIndex = MONTH_PREFIXES.indexOf(monthText.toLowerCase().slice(0, 3));
   if (monthIndex < 0) return null;
-  return new Date(Number(match[3]), monthIndex, Number(match[1]));
+  return validatedLocalDate(Number(yearText), monthIndex, Number(dayText));
+}
+
+function validatedLocalDate(year: number, month: number, day: number): Date | null {
+  const parsed = new Date(year, month, day);
+  if (
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month ||
+    parsed.getDate() !== day
+  ) {
+    return null;
+  }
+  return parsed;
 }
 
 /** Parses the "10:00 AM" half of a dateLabel into minutes since midnight. */
@@ -103,13 +145,6 @@ export function formatEventDate(date: Date, hours = 10, minutes = 0): string {
   const mm = String(minutes).padStart(2, "0");
   const suffix = hours < 12 ? "AM" : "PM";
   return `${String(date.getDate()).padStart(2, "0")} ${month} ${date.getFullYear()}, ${hh}:${mm} ${suffix}`;
-}
-
-function seedDateLabel(daysAhead: number, hours: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() + daysAhead);
-  date.setHours(hours, 0, 0, 0);
-  return formatEventDate(date, hours);
 }
 
 /** Grid cells (Sunday-first) for any month/year, padded to whole weeks. */
@@ -153,7 +188,7 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "Exciting student hackathon and competitive programming battle across two thrilling rounds.",
     venue: "Seminar Hall, SOC",
-    dateLabel: seedDateLabel(3, 10),
+    dateLabel: "25 Nov 2026, 10:00 AM",
     capacity: 100,
     taken: 78,
     image:
@@ -162,12 +197,12 @@ export const INITIAL_EVENTS: CampusEvent[] = [
   {
     id: "evt-nritya",
     code: "NU417",
-    title: "Nritya Utsav 2025",
+    title: "Nritya Utsav 2026",
     category: "Cultural",
     description:
       "Inter-college group and solo traditional folk dance festival celebrating classical Indian dance forms.",
     venue: "Open Air Auditorium",
-    dateLabel: seedDateLabel(5, 11),
+    dateLabel: "28 Nov 2026, 11:00 AM",
     capacity: 150,
     taken: 150,
     image:
@@ -182,7 +217,7 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "Lab 3, Computer Dept hands-on interactive UI/UX prototyping session with industry mentors.",
     venue: "Lab 3, Computer Dept",
-    dateLabel: seedDateLabel(8, 14),
+    dateLabel: "02 Dec 2026, 2:00 PM",
     capacity: 40,
     taken: 35,
     image:
@@ -196,7 +231,7 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "Trivia championship testing current affairs, science, and tech knowledge with buzzer rounds.",
     venue: "Ramanujan Seminar Hall",
-    dateLabel: seedDateLabel(10, 13),
+    dateLabel: "05 Dec 2026, 1:00 PM",
     capacity: 60,
     taken: 12,
     image:
@@ -210,7 +245,7 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "Team-vs-team combat robotics showdown — design, build and pilot bots in the Innovation Lab arena.",
     venue: "Innovation Lab",
-    dateLabel: seedDateLabel(11, 9),
+    dateLabel: "08 Dec 2026, 9:00 AM",
     capacity: 50,
     taken: 18,
     image:
@@ -224,7 +259,7 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "An intimate evening of acoustic sets, indie bands and open-mic performances under the open sky.",
     venue: "Amphitheatre",
-    dateLabel: seedDateLabel(15, 18),
+    dateLabel: "10 Dec 2026, 6:00 PM",
     capacity: 120,
     taken: 45,
     image:
@@ -238,7 +273,7 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "Startup pitch competition where student founders face investor judges for funding and incubation offers.",
     venue: "Main Auditorium",
-    dateLabel: seedDateLabel(18, 16),
+    dateLabel: "12 Dec 2026, 4:00 PM",
     capacity: 80,
     taken: 20,
     image:
@@ -252,11 +287,67 @@ export const INITIAL_EVENTS: CampusEvent[] = [
     description:
       "Two-day hands-on bootcamp covering cloud infrastructure, CI/CD pipelines and container orchestration.",
     venue: "Lab 5, IT Block",
-    dateLabel: seedDateLabel(21, 9),
+    dateLabel: "15 Dec 2026, 9:00 AM",
     capacity: 40,
     taken: 28,
     image:
       "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-cybersec",
+    code: "CSC811",
+    title: "CyberSec CTF Challenge",
+    category: "Technical",
+    description:
+      "A hands-on capture-the-flag challenge featuring practical security puzzles and team-based problem solving.",
+    venue: "Cyber Lab, SOC",
+    dateLabel: "17 Dec 2026, 11:00 AM",
+    capacity: 60,
+    taken: 42,
+    image:
+      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-persona-photo-walk",
+    code: "PP401",
+    title: "Persona Photography Walk",
+    category: "Cultural",
+    description:
+      "A sunrise photo walk through campus architecture, guided by student photographers.",
+    venue: "Rajbaugh Campus Dome",
+    dateLabel: "19 Dec 2026, 7:30 AM",
+    capacity: 30,
+    taken: 25,
+    image:
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-genai-hackathon",
+    code: "GAI264",
+    title: "GenAI & LLM Hackathon",
+    category: "Technical",
+    description:
+      "Build and demo practical generative AI experiences with student teams and mentor support.",
+    venue: "Innovation Center",
+    dateLabel: "22 Dec 2026, 10:00 AM",
+    capacity: 100,
+    taken: 85,
+    image:
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-design-thinking-sprint",
+    code: "DTS937",
+    title: "Design Thinking Sprint",
+    category: "Workshops",
+    description:
+      "A collaborative sprint to frame campus challenges, sketch ideas and prototype solutions.",
+    venue: "Design Studio B",
+    dateLabel: "26 Dec 2026, 2:00 PM",
+    capacity: 35,
+    taken: 19,
+    image:
+      "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80",
   },
 ];
 
@@ -271,7 +362,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: "ntf-2",
-    title: "Nritya Utsav 2025 is full",
+    title: "Nritya Utsav 2026 is full",
     body: "Waitlist is now open for the folk dance festival.",
     time: "5h ago",
     unread: true,

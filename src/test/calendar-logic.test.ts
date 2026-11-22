@@ -18,6 +18,15 @@ describe("dynamic campus calendar rules", () => {
     expect(parsed!.getDate()).toBe(24);
   });
 
+  it("parses valid ISO dates locally and rejects invalid dates rather than using the epoch", () => {
+    const isoDate = parseEventDate("2026-11-25");
+    expect(isoDate?.getFullYear()).toBe(2026);
+    expect(isoDate?.getMonth()).toBe(10);
+    expect(isoDate?.getDate()).toBe(25);
+    expect(parseEventDate("2026-02-31")).toBeNull();
+    expect(parseEventDate("not-a-date")).toBeNull();
+  });
+
   it("recalculates grid cells for any month, including leap February", () => {
     const feb2024 = monthGridCells(2024, 1);
     expect(feb2024.filter((cell) => cell !== null)).toHaveLength(29);

@@ -30,6 +30,7 @@ interface ModalState {
 }
 
 export function PortalApp() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [events, setEvents] = useState<CampusEvent[]>(INITIAL_EVENTS);
   const [passes, setPasses] = useState<GatePass[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
@@ -150,10 +151,14 @@ export function PortalApp() {
     }
   }, []);
 
+  const handleMarkAllRead = useCallback(() => {
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, unread: false })));
+  }, []);
+
   const modalEvent = modal ? events.find((e) => e.id === modal.eventId) : undefined;
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className={`min-h-screen bg-background pb-20 text-foreground ${theme === "dark" ? "dark" : ""}`}>
       <Header
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -161,6 +166,10 @@ export function PortalApp() {
         onSearchChange={setSearchQuery}
         unreadCount={unreadCount}
         passesCount={passes.length}
+        notifications={notifications}
+        onMarkAllRead={handleMarkAllRead}
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
