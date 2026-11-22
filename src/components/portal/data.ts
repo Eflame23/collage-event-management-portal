@@ -1,5 +1,3 @@
-import karadUrl from "@/assets/karad.jpg";
-
 export const KARAD = "/karad.jpg";
 
 export type EventCategory = "Technical" | "Cultural" | "Workshops" | "Competitions";
