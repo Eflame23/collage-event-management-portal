@@ -192,7 +192,12 @@ export function LoginScreen({ theme, onThemeToggle, onSignIn }: LoginScreenProps
               })}
             </div>
 
-            <div id="login-panel" role="tabpanel" aria-labelledby={`login-tab-${role}`} className="space-y-5">
+            <div
+              id="login-panel"
+              role="tabpanel"
+              aria-labelledby={`login-tab-${role}`}
+              className="space-y-5"
+            >
               <div>
                 <label
                   htmlFor="portal-user-id"

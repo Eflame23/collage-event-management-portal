@@ -67,7 +67,7 @@ interface OrganizerHubProps {
   onToggleCheckIn: (
     event: CampusEvent,
     registration: Registration,
-    checkedIn: boolean
+    checkedIn: boolean,
   ) => Promise<void> | void;
   onVerifyTicket: (event: CampusEvent, ticketId: string) => Promise<VerifyResult>;
   onAddAttendee: (event: CampusEvent, who: AttendeeInfo) => Promise<void> | void;
@@ -81,7 +81,13 @@ export function OrganizerHub(props: OrganizerHubProps) {
   return <OrganizerWorkspace {...props} />;
 }
 
-function RestrictedAccess({ session, onLogout }: { session: SessionProfile; onLogout: () => void }) {
+function RestrictedAccess({
+  session,
+  onLogout,
+}: {
+  session: SessionProfile;
+  onLogout: () => void;
+}) {
   return (
     <section
       role="alert"
@@ -233,260 +239,271 @@ function OrganizerWorkspace({
 
       {view === "events" && (
         <>
-      <AnalyticsStrip analytics={analytics} />
+          <AnalyticsStrip analytics={analytics} />
 
-      {/* Publish form */}
-      <section className="rounded-xl border border-portal-hairline bg-card p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-portal-gold-soft text-portal-gold-text">
-            <Megaphone className="size-5" />
-          </span>
-          <div>
-            <h2 className="font-display text-xl font-bold text-portal-regal">Publish a New Event</h2>
-            <p className="text-xs text-muted-foreground">
-              Published events appear instantly on the Discovery grid.
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={submit} className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Field label="Event Title">
-            <input
-              required
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (titleError) setTitleError(null);
-              }}
-              placeholder="e.g. RoboWars 3.0"
-              aria-invalid={titleError ? true : undefined}
-              aria-describedby={titleError ? "event-title-error" : undefined}
-              className={`${inputClass} ${titleError ? "border-destructive focus:border-destructive focus:ring-destructive/25" : ""}`}
-            />
-            {titleError && (
-              <span
-                id="event-title-error"
-                role="alert"
-                className="mt-1.5 block text-xs font-semibold text-destructive"
-              >
-                {titleError}
+          {/* Publish form */}
+          <section className="rounded-xl border border-portal-hairline bg-card p-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-portal-gold-soft text-portal-gold-text">
+                <Megaphone className="size-5" />
               </span>
-            )}
-          </Field>
-          <Field label="Category">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as EventCategory)}
-              className={inputClass}
+              <div>
+                <h2 className="font-display text-xl font-bold text-portal-regal">
+                  Publish a New Event
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Published events appear instantly on the Discovery grid.
+                </p>
+              </div>
+            </div>
+
+            <form
+              onSubmit={submit}
+              className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
             >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Venue / Hall">
-            <input
-              required
-              value={venue}
-              onChange={(e) => setVenue(e.target.value)}
-              placeholder="e.g. Innovation Lab, SOC"
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Date">
-            <input
-              required
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Capacity">
-            <input
-              type="number"
-              min={1}
-              max={999}
-              required
-              value={capacity}
-              onChange={(e) => setCapacity(Number(e.target.value))}
-              className={inputClass}
-            />
-          </Field>
-          <div className="space-y-3 sm:col-span-2 lg:col-span-3">
-            <div>
-              <h3 className="text-xs font-bold uppercase text-muted-foreground">Cover Image</h3>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Paste an image link, upload a file, or select a banner.
+              <Field label="Event Title">
+                <input
+                  required
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (titleError) setTitleError(null);
+                  }}
+                  placeholder="e.g. RoboWars 3.0"
+                  aria-invalid={titleError ? true : undefined}
+                  aria-describedby={titleError ? "event-title-error" : undefined}
+                  className={`${inputClass} ${titleError ? "border-destructive focus:border-destructive focus:ring-destructive/25" : ""}`}
+                />
+                {titleError && (
+                  <span
+                    id="event-title-error"
+                    role="alert"
+                    className="mt-1.5 block text-xs font-semibold text-destructive"
+                  >
+                    {titleError}
+                  </span>
+                )}
+              </Field>
+              <Field label="Category">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as EventCategory)}
+                  className={inputClass}
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Venue / Hall">
+                <input
+                  required
+                  value={venue}
+                  onChange={(e) => setVenue(e.target.value)}
+                  placeholder="e.g. Innovation Lab, SOC"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Date">
+                <input
+                  required
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Capacity">
+                <input
+                  type="number"
+                  min={1}
+                  max={999}
+                  required
+                  value={capacity}
+                  onChange={(e) => setCapacity(Number(e.target.value))}
+                  className={inputClass}
+                />
+              </Field>
+              <div className="space-y-3 sm:col-span-2 lg:col-span-3">
+                <div>
+                  <h3 className="text-xs font-bold uppercase text-muted-foreground">Cover Image</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Paste an image link, upload a file, or select a banner.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {COVER_IMAGE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      aria-pressed={coverImage === preset.image}
+                      onClick={() => {
+                        setCoverImage(preset.image);
+                        setImageUrl("");
+                      }}
+                      className={`min-w-0 overflow-hidden rounded-lg border text-left transition-colors ${
+                        coverImage === preset.image
+                          ? "border-portal-gold ring-2 ring-portal-gold/30"
+                          : "border-portal-hairline hover:border-portal-gold/60"
+                      }`}
+                    >
+                      <img src={preset.image} alt="" className="aspect-video w-full object-cover" />
+                      <span className="block truncate px-2 py-1.5 text-[11px] font-semibold text-foreground">
+                        {preset.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(12rem,20rem)]">
+                  <div className="space-y-3">
+                    <Field label="Image URL">
+                      <input
+                        type="url"
+                        value={imageUrl}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setImageUrl(value);
+                          setCoverImage(value.trim() || COVER_IMAGE_PRESETS[0]?.image || "");
+                        }}
+                        placeholder="https://example.com/event-cover.jpg"
+                        className={inputClass}
+                      />
+                    </Field>
+                    <Field label="Upload local image">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        aria-label="Upload local event cover image"
+                        onChange={(event) => {
+                          const file = event.currentTarget.files?.[0];
+                          if (!file || !file.type.startsWith("image/")) return;
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            if (typeof reader.result === "string") {
+                              setCoverImage(reader.result);
+                              setImageUrl("");
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                          event.currentTarget.value = "";
+                        }}
+                        className="block w-full rounded-lg border border-portal-hairline bg-background px-3 py-2 text-xs text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-foreground"
+                      />
+                    </Field>
+                  </div>
+                  {coverImage && (
+                    <figure className="overflow-hidden rounded-lg border border-portal-hairline bg-secondary">
+                      <img
+                        src={coverImage}
+                        alt="Selected event cover preview"
+                        className="aspect-video w-full object-cover"
+                      />
+                      <figcaption className="px-3 py-2 text-[11px] font-semibold text-muted-foreground">
+                        Selected cover preview
+                      </figcaption>
+                    </figure>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-end justify-end sm:col-span-2 lg:col-span-3">
+                <button
+                  type="submit"
+                  disabled={!canPublish || publishing}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-portal-gold px-4 py-2.5 text-sm font-bold text-white shadow-gold transition-colors hover:bg-portal-gold/90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:min-w-48"
+                >
+                  <Send className="size-4" />
+                  Publish Event
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {/* Live events table */}
+          <section className="overflow-hidden rounded-xl border border-portal-hairline bg-card shadow-sm">
+            <div className="flex items-center justify-between border-b border-portal-hairline px-6 py-4">
+              <h2 className="font-display text-lg font-bold text-portal-regal">Live Event Table</h2>
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Users className="size-3.5" />
+                {events.length} events tracked
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {COVER_IMAGE_PRESETS.map((preset) => (
-                <button
-                  key={preset.label}
-                  type="button"
-                  aria-pressed={coverImage === preset.image}
-                  onClick={() => {
-                    setCoverImage(preset.image);
-                    setImageUrl("");
-                  }}
-                  className={`min-w-0 overflow-hidden rounded-lg border text-left transition-colors ${
-                    coverImage === preset.image
-                      ? "border-portal-gold ring-2 ring-portal-gold/30"
-                      : "border-portal-hairline hover:border-portal-gold/60"
-                  }`}
-                >
-                  <img src={preset.image} alt="" className="aspect-video w-full object-cover" />
-                  <span className="block truncate px-2 py-1.5 text-[11px] font-semibold text-foreground">
-                    {preset.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(12rem,20rem)]">
-              <div className="space-y-3">
-                <Field label="Image URL">
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      setImageUrl(value);
-                      setCoverImage(value.trim() || COVER_IMAGE_PRESETS[0]?.image || "");
-                    }}
-                    placeholder="https://example.com/event-cover.jpg"
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="Upload local image">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    aria-label="Upload local event cover image"
-                    onChange={(event) => {
-                      const file = event.currentTarget.files?.[0];
-                      if (!file || !file.type.startsWith("image/")) return;
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        if (typeof reader.result === "string") {
-                          setCoverImage(reader.result);
-                          setImageUrl("");
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                      event.currentTarget.value = "";
-                    }}
-                    className="block w-full rounded-lg border border-portal-hairline bg-background px-3 py-2 text-xs text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-foreground"
-                  />
-                </Field>
-              </div>
-              {coverImage && (
-                <figure className="overflow-hidden rounded-lg border border-portal-hairline bg-secondary">
-                  <img src={coverImage} alt="Selected event cover preview" className="aspect-video w-full object-cover" />
-                  <figcaption className="px-3 py-2 text-[11px] font-semibold text-muted-foreground">
-                    Selected cover preview
-                  </figcaption>
-                </figure>
-              )}
-            </div>
-          </div>
-          <div className="flex items-end justify-end sm:col-span-2 lg:col-span-3">
-            <button
-              type="submit"
-              disabled={!canPublish || publishing}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-portal-gold px-4 py-2.5 text-sm font-bold text-white shadow-gold transition-colors hover:bg-portal-gold/90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:min-w-48"
-            >
-              <Send className="size-4" />
-              Publish Event
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* Live events table */}
-      <section className="overflow-hidden rounded-xl border border-portal-hairline bg-card shadow-sm">
-        <div className="flex items-center justify-between border-b border-portal-hairline px-6 py-4">
-          <h2 className="font-display text-lg font-bold text-portal-regal">Live Event Table</h2>
-          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Users className="size-3.5" />
-            {events.length} events tracked
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[960px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-portal-hairline bg-secondary text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                <th className="px-6 py-3">Event</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Venue</th>
-                <th className="px-4 py-3">Seats</th>
-                <th className="px-4 py-3">Checked In</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-6 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((event) => {
-                const rows = registrations.filter((r) => r.eventId === event.id);
-                const checkedIn = rows.filter((r) => r.status === "Approved" && r.checkedIn).length;
-                return (
-                  <tr key={event.id} className="border-b border-portal-hairline last:border-0">
-                    <td className="px-6 py-3 font-semibold text-foreground">{event.title}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{event.category}</td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <CalendarDays className="size-3.5 text-portal-gold" />
-                        {event.dateLabel}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{event.venue}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                      {event.taken}/{event.capacity}
-                    </td>
-                    <td className="px-4 py-3">
-                      {checkedIn > 0 ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-portal-ok/15 px-2.5 py-1 text-[11px] font-bold text-portal-ok">
-                          <CircleCheck className="size-3" aria-hidden />
-                          {checkedIn} Checked In
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusPill event={event} />
-                    </td>
-                    <td className="px-6 py-3">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setParticipantsEventId(event.id)}
-                          className="rounded-lg border border-portal-gold bg-portal-gold-soft px-3 py-1.5 text-xs font-bold text-portal-gold-text transition-colors hover:bg-portal-gold hover:text-white"
-                        >
-                          Participants ({rows.length})
-                        </button>
-                        {canEmergencyCancel && (
-                          <button
-                            type="button"
-                            disabled={event.cancelled}
-                            onClick={() => onEmergencyCancel(event)}
-                            className="rounded-lg border border-destructive/40 px-3 py-1.5 text-xs font-bold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            Emergency Cancel
-                          </button>
-                        )}
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[960px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-portal-hairline bg-secondary text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                    <th className="px-6 py-3">Event</th>
+                    <th className="px-4 py-3">Category</th>
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Venue</th>
+                    <th className="px-4 py-3">Seats</th>
+                    <th className="px-4 py-3">Checked In</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-6 py-3 text-right">Action</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                </thead>
+                <tbody>
+                  {events.map((event) => {
+                    const rows = registrations.filter((r) => r.eventId === event.id);
+                    const checkedIn = rows.filter(
+                      (r) => r.status === "Approved" && r.checkedIn,
+                    ).length;
+                    return (
+                      <tr key={event.id} className="border-b border-portal-hairline last:border-0">
+                        <td className="px-6 py-3 font-semibold text-foreground">{event.title}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{event.category}</td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          <span className="flex items-center gap-1.5">
+                            <CalendarDays className="size-3.5 text-portal-gold" />
+                            {event.dateLabel}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">{event.venue}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                          {event.taken}/{event.capacity}
+                        </td>
+                        <td className="px-4 py-3">
+                          {checkedIn > 0 ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-portal-ok/15 px-2.5 py-1 text-[11px] font-bold text-portal-ok">
+                              <CircleCheck className="size-3" aria-hidden />
+                              {checkedIn} Checked In
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusPill event={event} />
+                        </td>
+                        <td className="px-6 py-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setParticipantsEventId(event.id)}
+                              className="rounded-lg border border-portal-gold bg-portal-gold-soft px-3 py-1.5 text-xs font-bold text-portal-gold-text transition-colors hover:bg-portal-gold hover:text-white"
+                            >
+                              Participants ({rows.length})
+                            </button>
+                            {canEmergencyCancel && (
+                              <button
+                                type="button"
+                                disabled={event.cancelled}
+                                onClick={() => onEmergencyCancel(event)}
+                                className="rounded-lg border border-destructive/40 px-3 py-1.5 text-xs font-bold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                Emergency Cancel
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </>
       )}
 
@@ -562,7 +579,9 @@ function AnalyticsStrip({ analytics }: { analytics: PortalAnalytics }) {
       </div>
 
       <div className="rounded-xl border border-portal-hairline bg-card p-5 shadow-sm">
-        <h2 className="font-display text-base font-bold text-portal-regal">Fill Rate by Category</h2>
+        <h2 className="font-display text-base font-bold text-portal-regal">
+          Fill Rate by Category
+        </h2>
         <div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
           {analytics.byCategory.map((row) => (
             <div key={row.category}>
@@ -646,7 +665,7 @@ function ParticipantsDrawer({
     return mine.sort(
       (a, b) =>
         STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
-        new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime()
+        new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime(),
     );
   }, [registrations, event.id]);
 
@@ -715,8 +734,8 @@ function ParticipantsDrawer({
           </p>
           <h2 className="mt-1 font-display text-xl font-bold text-white">{event.title}</h2>
           <p className="mt-1 text-xs text-white/70">
-            {event.dateLabel} · {event.venue} · {event.taken}/{event.capacity} seats ·{" "}
-            {waitlisted} waitlisted · {checkedIn} checked in
+            {event.dateLabel} · {event.venue} · {event.taken}/{event.capacity} seats · {waitlisted}{" "}
+            waitlisted · {checkedIn} checked in
           </p>
         </div>
 
@@ -772,7 +791,11 @@ function ParticipantsDrawer({
               <UserPlus className="size-4 text-portal-gold" aria-hidden />
               Add walk-in / manual registration by Enrollment ID
             </summary>
-            <form onSubmit={addWalkIn} noValidate className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <form
+              onSubmit={addWalkIn}
+              noValidate
+              className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]"
+            >
               <input
                 value={walkId}
                 onChange={(e) => {
@@ -801,7 +824,8 @@ function ParticipantsDrawer({
               </p>
             )}
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Registers the ID under this event, or joins the waitlist automatically when the event is full.
+              Registers the ID under this event, or joins the waitlist automatically when the event
+              is full.
             </p>
           </details>
 
@@ -821,7 +845,10 @@ function ParticipantsDrawer({
               <tbody>
                 {rows.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-10 text-center text-sm text-muted-foreground"
+                    >
                       No registrations for this event yet.
                     </td>
                   </tr>
@@ -907,7 +934,7 @@ function ParticipantsDrawer({
                                     isApproved
                                       ? "Their seat will go to the next student on the waitlist."
                                       : "This deletes their registration."
-                                  }`
+                                  }`,
                                 )
                               ) {
                                 void run(key, () => onRemove(event, reg));
@@ -968,7 +995,8 @@ function EnrollmentDirectory({
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {groups.length} Enrollment {groups.length === 1 ? "ID" : "IDs"} · {registrations.length}{" "}
-            {registrations.length === 1 ? "registration" : "registrations"} · grouped live from Supabase
+            {registrations.length === 1 ? "registration" : "registrations"} · grouped live from
+            Supabase
           </p>
         </div>
         <div className="relative w-full sm:max-w-xs">
@@ -1070,13 +1098,7 @@ function EnrollmentDirectory({
   );
 }
 
-function ParticipantStatus({
-  status,
-  position,
-}: {
-  status: RegistrationStatus;
-  position: number;
-}) {
+function ParticipantStatus({ status, position }: { status: RegistrationStatus; position: number }) {
   const styles: Record<RegistrationStatus, string> = {
     Approved: "bg-portal-ok/15 text-portal-ok",
     Pending: "bg-portal-gold-soft text-portal-gold-text",

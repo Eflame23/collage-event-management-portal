@@ -113,7 +113,10 @@ export function PassesAlerts({
                         {event.title}
                       </h3>
                     </div>
-                    <QrCode value={pass.ticketId} className="size-14 shrink-0 rounded bg-white p-1 text-portal-regal" />
+                    <QrCode
+                      value={pass.ticketId}
+                      className="size-14 shrink-0 rounded bg-white p-1 text-portal-regal"
+                    />
                   </div>
                   <div className="space-y-2 px-5 py-4 text-xs text-muted-foreground">
                     <p className="flex items-center gap-1.5">
@@ -186,9 +189,15 @@ export function PassesAlerts({
                 const position = waitlistPositions[reg.eventId];
                 const badge =
                   reg.status === "Waitlisted"
-                    ? { text: `Waitlist #${position ?? "?"}`, cls: "bg-portal-gold-soft text-portal-gold-text" }
+                    ? {
+                        text: `Waitlist #${position ?? "?"}`,
+                        cls: "bg-portal-gold-soft text-portal-gold-text",
+                      }
                     : reg.status === "Pending"
-                      ? { text: "Pending approval", cls: "bg-portal-gold-soft text-portal-gold-text" }
+                      ? {
+                          text: "Pending approval",
+                          cls: "bg-portal-gold-soft text-portal-gold-text",
+                        }
                       : { text: "Rejected", cls: "bg-destructive/10 text-destructive" };
                 return (
                   <li
@@ -199,7 +208,9 @@ export function PassesAlerts({
                       <h4 className="font-display text-base font-bold text-portal-regal">
                         {event.title}
                       </h4>
-                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold ${badge.cls}`}>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold ${badge.cls}`}
+                      >
                         {badge.text}
                       </span>
                     </div>
@@ -210,7 +221,8 @@ export function PassesAlerts({
                     <p className="mt-2 text-xs text-muted-foreground">
                       {reg.status === "Waitlisted" &&
                         "No seat is held yet. Your pass is issued automatically the moment a seat opens up."}
-                      {reg.status === "Pending" && "The organizer will review your request shortly."}
+                      {reg.status === "Pending" &&
+                        "The organizer will review your request shortly."}
                       {reg.status === "Rejected" && "The organizer declined this registration."}
                     </p>
                     {!readOnly && reg.status !== "Rejected" && (

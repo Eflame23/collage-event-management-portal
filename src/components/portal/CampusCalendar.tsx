@@ -78,7 +78,7 @@ export function CampusCalendar({
 
   const visibleEvents = useMemo(
     () => (filter === "mine" ? events.filter((e) => registeredIds.has(e.id)) : events),
-    [events, filter, registeredIds]
+    [events, filter, registeredIds],
   );
 
   const eventsByDay = useMemo(() => {
@@ -102,8 +102,10 @@ export function CampusCalendar({
     () =>
       [...eventsByDay.entries()]
         .sort(([a], [b]) => a - b)
-        .flatMap(([day, list]) => list.map((event, index) => ({ day, event, firstOfDay: index === 0 }))),
-    [eventsByDay]
+        .flatMap(([day, list]) =>
+          list.map((event, index) => ({ day, event, firstOfDay: index === 0 })),
+        ),
+    [eventsByDay],
   );
 
   const cells = monthGridCells(view.year, view.month);
@@ -157,26 +159,25 @@ export function CampusCalendar({
           (new Date(
             nextUpcoming.startsAt.getFullYear(),
             nextUpcoming.startsAt.getMonth(),
-            nextUpcoming.startsAt.getDate()
+            nextUpcoming.startsAt.getDate(),
           ).getTime() -
             todayStart.getTime()) /
-            86_400_000
-        )
+            86_400_000,
+        ),
       )
     : null;
 
   return (
     <div className="space-y-5">
-      <section
-        aria-label="Calendar summary"
-        className={`grid grid-cols-1 sm:grid-cols-3 ${PANEL}`}
-      >
+      <section aria-label="Calendar summary" className={`grid grid-cols-1 sm:grid-cols-3 ${PANEL}`}>
         <div className="flex items-center gap-3 border-b border-portal-hairline px-4 py-4 sm:border-b-0 sm:border-r sm:px-5">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-portal-gold-soft text-portal-gold-text">
             <CalendarDays className="size-4" aria-hidden />
           </span>
           <div>
-            <p className="text-[11px] font-bold uppercase text-muted-foreground">Total Events This Month</p>
+            <p className="text-[11px] font-bold uppercase text-muted-foreground">
+              Total Events This Month
+            </p>
             <p className="text-xl font-extrabold text-foreground">{monthEvents.length}</p>
           </div>
         </div>
@@ -185,7 +186,9 @@ export function CampusCalendar({
             <TicketCheck className="size-4" aria-hidden />
           </span>
           <div>
-            <p className="text-[11px] font-bold uppercase text-muted-foreground">Your Registered Events</p>
+            <p className="text-[11px] font-bold uppercase text-muted-foreground">
+              Your Registered Events
+            </p>
             <p className="text-xl font-extrabold text-foreground">{registeredThisMonth}</p>
           </div>
         </div>
@@ -194,7 +197,9 @@ export function CampusCalendar({
             <Clock3 className="size-4" aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase text-muted-foreground">Next Upcoming Event</p>
+            <p className="text-[11px] font-bold uppercase text-muted-foreground">
+              Next Upcoming Event
+            </p>
             <p className="truncate text-sm font-bold text-foreground">
               {nextUpcoming?.event.title ?? "No upcoming events"}
             </p>
@@ -218,7 +223,9 @@ export function CampusCalendar({
             </span>
             <div>
               <h2 className="font-display text-lg font-bold text-portal-regal">Campus Calendar</h2>
-              <p className="text-xs text-muted-foreground">Every MIT-ADT event on a live month grid</p>
+              <p className="text-xs text-muted-foreground">
+                Every MIT-ADT event on a live month grid
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -230,7 +237,10 @@ export function CampusCalendar({
             >
               <ChevronLeft className="size-4" />
             </button>
-            <span className="min-w-[9.5rem] text-center text-sm font-bold text-portal-regal" aria-live="polite">
+            <span
+              className="min-w-[9.5rem] text-center text-sm font-bold text-portal-regal"
+              aria-live="polite"
+            >
               {monthLabel}
             </span>
             <button
@@ -284,10 +294,7 @@ export function CampusCalendar({
           <span className="font-bold text-foreground">Categories</span>
           {CATEGORIES.map((category) => (
             <span key={category} className="flex items-center gap-1.5">
-              <span
-                aria-hidden
-                className={`h-3 w-1 rounded-sm ${CATEGORY_DOT_STYLE[category]}`}
-              />
+              <span aria-hidden className={`h-3 w-1 rounded-sm ${CATEGORY_DOT_STYLE[category]}`} />
               {category}
             </span>
           ))}
@@ -309,8 +316,7 @@ export function CampusCalendar({
                 const inMonth = day !== null;
                 const dayEvents = inMonth ? (eventsByDay.get(day) ?? []) : [];
                 const hasEvents = dayEvents.length > 0;
-                const isToday =
-                  inMonth && isSameDay(new Date(view.year, view.month, day), today);
+                const isToday = inMonth && isSameDay(new Date(view.year, view.month, day), today);
                 return (
                   <div
                     key={index}
@@ -366,8 +372,7 @@ export function CampusCalendar({
             Event card — click for details
           </span>
           <span className="flex items-center gap-1.5">
-            <span aria-hidden className="size-2.5 rounded-full bg-portal-ok" />
-            ✓ Registered
+            <span aria-hidden className="size-2.5 rounded-full bg-portal-ok" />✓ Registered
           </span>
           <span className="flex items-center gap-1.5">
             <span aria-hidden className="size-2.5 rounded-full bg-destructive" />
@@ -388,7 +393,8 @@ export function CampusCalendar({
                 {monthLabel} Schedule
               </h2>
               <p className="text-xs text-muted-foreground">
-                {agendaEvents.length} event{agendaEvents.length === 1 ? "" : "s"} in chronological order
+                {agendaEvents.length} event{agendaEvents.length === 1 ? "" : "s"} in chronological
+                order
               </p>
             </div>
           </div>
@@ -684,7 +690,11 @@ function AgendaAction({
   const base = "w-full shrink-0 rounded-lg px-4 py-2 text-xs font-bold transition-colors sm:w-36";
   if (event.cancelled) {
     return (
-      <button type="button" disabled className={`${base} cursor-not-allowed bg-muted text-muted-foreground`}>
+      <button
+        type="button"
+        disabled
+        className={`${base} cursor-not-allowed bg-muted text-muted-foreground`}
+      >
         Cancelled
       </button>
     );
@@ -739,12 +749,17 @@ function busiestUpcomingMonth(events: CampusEvent[]): { year: number; month: num
     const date = parseEventDate(event.dateLabel);
     if (!date || date.getTime() < today.getTime()) continue;
     const key = date.getFullYear() * 12 + date.getMonth();
-    const bucket = buckets.get(key) ?? { year: date.getFullYear(), month: date.getMonth(), count: 0 };
+    const bucket = buckets.get(key) ?? {
+      year: date.getFullYear(),
+      month: date.getMonth(),
+      count: 0,
+    };
     bucket.count += 1;
     buckets.set(key, bucket);
   }
-  const best = [...buckets.entries()]
-    .sort(([keyA, a], [keyB, b]) => b.count - a.count || keyA - keyB)[0]?.[1];
+  const best = [...buckets.entries()].sort(
+    ([keyA, a], [keyB, b]) => b.count - a.count || keyA - keyB,
+  )[0]?.[1];
   return best
     ? { year: best.year, month: best.month }
     : { year: today.getFullYear(), month: today.getMonth() };
@@ -752,7 +767,7 @@ function busiestUpcomingMonth(events: CampusEvent[]): { year: number; month: num
 
 function getNextUpcomingEvent(
   events: CampusEvent[],
-  now: Date
+  now: Date,
 ): { event: CampusEvent; startsAt: Date } | undefined {
   return events
     .filter((event) => !event.cancelled)
@@ -766,7 +781,7 @@ function getNextUpcomingEvent(
     })
     .filter(
       (entry): entry is { event: CampusEvent; startsAt: Date } =>
-        entry !== null && entry.startsAt.getTime() >= now.getTime()
+        entry !== null && entry.startsAt.getTime() >= now.getTime(),
     )
     .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
 }

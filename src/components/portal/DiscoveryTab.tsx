@@ -1,5 +1,5 @@
 import { CalendarDays, MapPin, Search, Users } from "lucide-react";
-import { type CampusEvent, CATEGORIES, KARAD_PORTRAIT } from "./data";
+import { type CampusEvent, CATEGORIES, KARAD } from "./data";
 import { categoryCounts, matchesSearch, seatPercent } from "./portal-logic";
 
 interface DiscoveryTabProps {
@@ -27,7 +27,7 @@ export function DiscoveryTab({
 }: DiscoveryTabProps) {
   const counts = categoryCounts(events);
   const visible = events.filter(
-    (e) => (category === "All Events" || e.category === category) && matchesSearch(e, searchQuery)
+    (e) => (category === "All Events" || e.category === category) && matchesSearch(e, searchQuery),
   );
 
   return (
@@ -53,7 +53,7 @@ export function DiscoveryTab({
             />
             <figure className="relative overflow-hidden rounded-2xl border border-amber-200/50 shadow-lg">
               <img
-                src={KARAD_PORTRAIT}
+                src={KARAD}
                 alt="Prof. Dr. Vishwanath D. Karad, Founder President of MIT-ADT University"
                 className="h-60 w-48 object-cover object-top sm:w-56"
               />
@@ -98,7 +98,12 @@ export function DiscoveryTab({
                   : "border border-portal-hairline bg-card text-foreground hover:border-portal-purple/40 hover:bg-secondary"
               }`}
             >
-              {pill} <span className={`ml-1 text-xs ${active ? "text-white/70" : "text-muted-foreground"}`}>({count})</span>
+              {pill}{" "}
+              <span
+                className={`ml-1 text-xs ${active ? "text-white/70" : "text-muted-foreground"}`}
+              >
+                ({count})
+              </span>
             </button>
           );
         })}
@@ -118,7 +123,8 @@ export function DiscoveryTab({
         ))}
         {visible.length === 0 && (
           <p className="col-span-full rounded-2xl border border-dashed border-portal-hairline bg-card py-12 text-center text-sm text-muted-foreground">
-            No events match your filters yet — try another category or publish one from the Organizer Hub.
+            No events match your filters yet — try another category or publish one from the
+            Organizer Hub.
           </p>
         )}
       </div>

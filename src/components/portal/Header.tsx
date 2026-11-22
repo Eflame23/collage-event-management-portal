@@ -70,8 +70,7 @@ export function Header({
             <p
               className="font-display text-base font-bold tracking-wider text-white xl:text-lg"
               style={{
-                textShadow:
-                  "0 1px 3px color-mix(in oklab, var(--portal-gold) 55%, transparent)",
+                textShadow: "0 1px 3px color-mix(in oklab, var(--portal-gold) 55%, transparent)",
               }}
             >
               MIT-ADT UNIVERSITY
@@ -212,9 +211,7 @@ function NotificationPopover({
           <div className="flex items-center justify-between gap-3 border-b border-portal-hairline px-4 py-3">
             <div>
               <h2 className="text-sm font-bold text-foreground">Notifications</h2>
-              <p className="text-[11px] text-muted-foreground">
-                {unreadCount} unread
-              </p>
+              <p className="text-[11px] text-muted-foreground">{unreadCount} unread</p>
             </div>
             <button
               type="button"
@@ -252,10 +249,16 @@ function NotificationPopover({
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-bold leading-snug text-foreground">{item.title}</p>
-                        <time className="shrink-0 text-[10px] text-muted-foreground">{item.time}</time>
+                        <p className="text-xs font-bold leading-snug text-foreground">
+                          {item.title}
+                        </p>
+                        <time className="shrink-0 text-[10px] text-muted-foreground">
+                          {item.time}
+                        </time>
                       </div>
-                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{item.body}</p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                        {item.body}
+                      </p>
                     </div>
                   </article>
                 );

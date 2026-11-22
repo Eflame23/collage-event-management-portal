@@ -1,4 +1,12 @@
-import { BadgeCheck, CalendarDays, CircleCheck, Download, MapPin, ShieldCheck, X } from "lucide-react";
+import {
+  BadgeCheck,
+  CalendarDays,
+  CircleCheck,
+  Download,
+  MapPin,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { type CampusEvent } from "./data";
 import { seatPercent } from "./portal-logic";
 import { QrCode } from "./QrCode";
@@ -32,7 +40,9 @@ export function RegisterModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={stage === "confirm" ? `Register for ${event.title}` : `Gate pass for ${event.title}`}
+      aria-label={
+        stage === "confirm" ? `Register for ${event.title}` : `Gate pass for ${event.title}`
+      }
       className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-portal-regal/60 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
@@ -108,7 +118,9 @@ function ConfirmStage({
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Enrollment ID
               </p>
-              <p className="break-all font-mono text-sm font-bold text-foreground">{enrollmentId}</p>
+              <p className="break-all font-mono text-sm font-bold text-foreground">
+                {enrollmentId}
+              </p>
               <p className="text-xs text-muted-foreground">Verified student</p>
             </div>
             <BadgeCheck className="ml-auto size-5 text-portal-ok" />
@@ -168,9 +180,7 @@ function PassStage({
         <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/90">
           Digital Event Gate Pass
         </p>
-        <h2 className="mt-0.5 font-display text-lg font-bold text-white">
-          MIT-ADT UNIVERSITY
-        </h2>
+        <h2 className="mt-0.5 font-display text-lg font-bold text-white">MIT-ADT UNIVERSITY</h2>
       </div>
 
       <div className="space-y-4 p-6">
@@ -198,7 +208,9 @@ function PassStage({
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Enrollment ID
               </p>
-              <p className="break-all font-mono text-sm font-bold text-foreground">{enrollmentId}</p>
+              <p className="break-all font-mono text-sm font-bold text-foreground">
+                {enrollmentId}
+              </p>
             </div>
           </div>
           {checkedIn ? (

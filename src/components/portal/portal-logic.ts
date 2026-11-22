@@ -65,7 +65,7 @@ export function registerForEvent(
   passes: GatePass[],
   eventId: string,
   attendee: string,
-  division: string
+  division: string,
 ): RegistrationResult {
   const event = events.find((e) => e.id === eventId);
   if (!event) throw new Error("Event not found.");
@@ -77,9 +77,7 @@ export function registerForEvent(
     throw new Error(`${event.title} is full — join the waitlist instead.`);
   }
 
-  const updatedEvents = events.map((e) =>
-    e.id === eventId ? { ...e, taken: e.taken + 1 } : e
-  );
+  const updatedEvents = events.map((e) => (e.id === eventId ? { ...e, taken: e.taken + 1 } : e));
   const pass: GatePass = {
     eventId,
     ticketId: makeTicketId(event),
@@ -94,11 +92,11 @@ export function registerForEvent(
 export function cancelRegistration(
   events: CampusEvent[],
   passes: GatePass[],
-  eventId: string
+  eventId: string,
 ): { events: CampusEvent[]; passes: GatePass[] } {
   const hasPass = passes.some((p) => p.eventId === eventId);
   const updatedEvents = events.map((e) =>
-    e.id === eventId && hasPass ? { ...e, taken: Math.max(0, e.taken - 1) } : e
+    e.id === eventId && hasPass ? { ...e, taken: Math.max(0, e.taken - 1) } : e,
   );
   return {
     events: updatedEvents,
@@ -157,7 +155,7 @@ export function cancelEvent(events: CampusEvent[], eventId: string): CampusEvent
 /** Inserts the new event into `events`, then prepends it to the local grid. */
 export async function publishEventRemote(
   events: CampusEvent[],
-  draft: EventDraft
+  draft: EventDraft,
 ): Promise<CampusEvent[]> {
   const [draftEvent] = publishEvent(events, draft);
   const newEvent: CampusEvent = {
@@ -178,7 +176,7 @@ export async function publishEventRemote(
 /** Sets `cancelled = true` in Supabase, then flags the event locally. */
 export async function cancelEventRemote(
   events: CampusEvent[],
-  eventId: string
+  eventId: string,
 ): Promise<CampusEvent[]> {
   await markEventCancelled(eventId);
   return cancelEvent(events, eventId);
@@ -476,7 +474,7 @@ async function deleteRegistrationRow(eventId: string, enrollmentId: string): Pro
 
 async function fetchRegistrationRow(
   eventId: string,
-  enrollmentId: string
+  enrollmentId: string,
 ): Promise<Registration | null> {
   const { data, error } = await getSupabase()
     .from("registrations")
@@ -493,7 +491,7 @@ async function fetchRegistrationRow(
 async function updateRegistrationFields(
   eventId: string,
   enrollmentId: string,
-  patch: Partial<Pick<RegistrationDbRow, "status" | "checked_in" | "checked_in_at">>
+  patch: Partial<Pick<RegistrationDbRow, "status" | "checked_in" | "checked_in_at">>,
 ): Promise<RegistrationDbRow> {
   const { data, error } = await getSupabase()
     .from("registrations")
@@ -522,7 +520,7 @@ export function mergeEvents(local: CampusEvent[], fresh: CampusEvent[]): CampusE
 export function findRegistration(
   registrations: Registration[],
   eventId: string,
-  enrollmentId: string
+  enrollmentId: string,
 ): Registration | undefined {
   return registrations.find((r) => r.eventId === eventId && r.enrollmentId === enrollmentId);
 }
@@ -534,7 +532,7 @@ export function waitlistQueue(registrations: Registration[], eventId: string): R
     .sort(
       (a, b) =>
         new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime() ||
-        a.ticketId.localeCompare(b.ticketId)
+        a.ticketId.localeCompare(b.ticketId),
     );
 }
 
@@ -542,15 +540,17 @@ export function waitlistQueue(registrations: Registration[], eventId: string): R
 export function waitlistPosition(
   registrations: Registration[],
   eventId: string,
-  enrollmentId: string
+  enrollmentId: string,
 ): number {
-  return waitlistQueue(registrations, eventId).findIndex((r) => r.enrollmentId === enrollmentId) + 1;
+  return (
+    waitlistQueue(registrations, eventId).findIndex((r) => r.enrollmentId === enrollmentId) + 1
+  );
 }
 
 /** eventId -> 1-based waitlist position for one attendee. */
 export function waitlistPositions(
   registrations: Registration[],
-  enrollmentId: string
+  enrollmentId: string,
 ): Record<string, number> {
   const out: Record<string, number> = {};
   for (const reg of registrations) {
@@ -564,7 +564,7 @@ export function waitlistPositions(
 /** MIT-ADT-2025-<EVENT_CODE>-<ENROLLMENT_ID>: unique per student, so many students can hold passes for one event. */
 export function makeAttendeeTicketId(
   event: Pick<CampusEvent, "code">,
-  enrollmentId: string
+  enrollmentId: string,
 ): string {
   return makeTicketId(event, enrollmentId || "NA");
 }
@@ -600,9 +600,7 @@ export interface RegistrationOutcome extends MutationResult {
 }
 
 function adjustTaken(events: CampusEvent[], eventId: string, delta: 1 | -1): CampusEvent[] {
-  return events.map((e) =>
-    e.id === eventId ? { ...e, taken: Math.max(0, e.taken + delta) } : e
-  );
+  return events.map((e) => (e.id === eventId ? { ...e, taken: Math.max(0, e.taken + delta) } : e));
 }
 
 function describeExisting(event: CampusEvent, existing: Registration, all: Registration[]): string {
@@ -630,7 +628,7 @@ export function registerOrWaitlist(
   events: CampusEvent[],
   registrations: Registration[],
   eventId: string,
-  who: AttendeeInfo
+  who: AttendeeInfo,
 ): RegistrationOutcome {
   const event = events.find((e) => e.id === eventId);
   if (!event) throw new Error("Event not found.");
@@ -668,7 +666,7 @@ export function registerOrWaitlist(
 function promoteLocal(
   events: CampusEvent[],
   registrations: Registration[],
-  eventId: string
+  eventId: string,
 ): MutationResult {
   const event = events.find((e) => e.id === eventId);
   const head = waitlistQueue(registrations, eventId)[0];
@@ -691,7 +689,7 @@ export function removeAndPromote(
   events: CampusEvent[],
   registrations: Registration[],
   eventId: string,
-  enrollmentId: string
+  enrollmentId: string,
 ): MutationResult {
   const target = findRegistration(registrations, eventId, enrollmentId);
   if (!target) return { events, registrations, promoted: [] };
@@ -706,7 +704,7 @@ export function changeRegistrationStatus(
   registrations: Registration[],
   eventId: string,
   enrollmentId: string,
-  next: "Approved" | "Rejected"
+  next: "Approved" | "Rejected",
 ): MutationResult {
   const target = findRegistration(registrations, eventId, enrollmentId);
   const event = events.find((e) => e.id === eventId);
@@ -717,7 +715,7 @@ export function changeRegistrationStatus(
     if (event.cancelled) throw new Error(`${event.title} has been cancelled by the organizer.`);
     if (event.taken >= event.capacity) {
       throw new Error(
-        `${event.title} is full — reject or remove an approved attendee first to free a seat.`
+        `${event.title} is full — reject or remove an approved attendee first to free a seat.`,
       );
     }
     return {
@@ -746,7 +744,7 @@ export function setCheckIn(
   registrations: Registration[],
   eventId: string,
   enrollmentId: string,
-  checkedIn: boolean
+  checkedIn: boolean,
 ): Registration[] {
   const target = findRegistration(registrations, eventId, enrollmentId);
   if (!target) throw new Error("This registration no longer exists.");
@@ -754,7 +752,7 @@ export function setCheckIn(
   return registrations.map((r) =>
     r === target
       ? { ...r, checkedIn, checkedInAt: checkedIn ? new Date().toISOString() : undefined }
-      : r
+      : r,
   );
 }
 
@@ -767,12 +765,12 @@ export type TicketVerification =
 export function verifyTicket(
   registrations: Registration[],
   eventId: string,
-  ticketId: string
+  ticketId: string,
 ): TicketVerification {
   const wanted = ticketId.trim().toLowerCase();
   if (!wanted) return { kind: "invalid", message: "Enter or scan a ticket ID first." };
   const registration = registrations.find(
-    (r) => r.eventId === eventId && r.ticketId.toLowerCase() === wanted
+    (r) => r.eventId === eventId && r.ticketId.toLowerCase() === wanted,
   );
   if (!registration) {
     return { kind: "invalid", message: `No ticket "${ticketId.trim()}" exists for this event.` };
@@ -803,7 +801,7 @@ export function verifyTicket(
 
 async function refreshState(
   events: CampusEvent[],
-  promoted: Registration[]
+  promoted: Registration[],
 ): Promise<MutationResult> {
   const [freshEvents, registrations] = await Promise.all([fetchEvents(), fetchAllRegistrations()]);
   return { events: mergeEvents(events, freshEvents), registrations, promoted };
@@ -865,7 +863,7 @@ export async function registerOrWaitlistRemote(
   events: CampusEvent[],
   registrations: Registration[],
   eventId: string,
-  who: AttendeeInfo
+  who: AttendeeInfo,
 ): Promise<RegistrationOutcome> {
   const planned = registerOrWaitlist(events, registrations, eventId, who); // validates
   const event = events.find((e) => e.id === eventId)!;
@@ -878,7 +876,7 @@ export async function registerOrWaitlistRemote(
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new DuplicateRegistrationError(
-        `You already have a registration for ${event.title}. Double registration is blocked.`
+        `You already have a registration for ${event.title}. Double registration is blocked.`,
       );
     }
     throw error;
@@ -894,7 +892,7 @@ export async function registerOrWaitlistRemote(
         await updateRegistrationFields(eventId, who.enrollmentId, { status: "Waitlisted" });
       } else {
         await deleteRegistrationRow(eventId, who.enrollmentId).catch((e) =>
-          console.error("Could not roll back registration", e)
+          console.error("Could not roll back registration", e),
         );
         if (error instanceof SeatUnavailableError) {
           throw new Error(`${event.title} has been cancelled by the organizer.`);
@@ -912,7 +910,8 @@ export async function registerOrWaitlistRemote(
   }
 
   const fresh = await refreshState(events, promotedOthers);
-  const registration = findRegistration(fresh.registrations, eventId, who.enrollmentId) ?? planned.registration;
+  const registration =
+    findRegistration(fresh.registrations, eventId, who.enrollmentId) ?? planned.registration;
   const waitlisted = registration.status === "Waitlisted";
   return {
     ...fresh,
@@ -931,7 +930,7 @@ export async function removeRegistrationRemote(
   events: CampusEvent[],
   _registrations: Registration[],
   eventId: string,
-  enrollmentId: string
+  enrollmentId: string,
 ): Promise<MutationResult> {
   const current = await fetchRegistrationRow(eventId, enrollmentId);
   const removed = await deleteRegistrationRow(eventId, enrollmentId);
@@ -950,7 +949,7 @@ export async function setRegistrationStatusRemote(
   _registrations: Registration[],
   eventId: string,
   enrollmentId: string,
-  next: "Approved" | "Rejected"
+  next: "Approved" | "Rejected",
 ): Promise<MutationResult> {
   const current = await fetchRegistrationRow(eventId, enrollmentId);
   if (!current) throw new Error("This registration no longer exists.");
@@ -965,7 +964,7 @@ export async function setRegistrationStatusRemote(
           throw new Error(
             error.reason === "full"
               ? "This event is full — reject or remove an approved attendee first to free a seat."
-              : "This event has been cancelled."
+              : "This event has been cancelled.",
           );
         }
         throw error;
@@ -997,7 +996,7 @@ export async function setCheckInRemote(
   events: CampusEvent[],
   eventId: string,
   enrollmentId: string,
-  checkedIn: boolean
+  checkedIn: boolean,
 ): Promise<MutationResult> {
   const current = await fetchRegistrationRow(eventId, enrollmentId);
   if (!current) throw new Error("This registration no longer exists.");
@@ -1038,7 +1037,7 @@ export function groupByEnrollment(registrations: Registration[]): EnrollmentGrou
       const sorted = [...rows].sort(
         (a, b) =>
           new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime() ||
-          a.ticketId.localeCompare(b.ticketId)
+          a.ticketId.localeCompare(b.ticketId),
       );
       return {
         enrollmentId,
@@ -1105,7 +1104,7 @@ const percent = (part: number, whole: number) =>
 
 export function computeAnalytics(
   events: CampusEvent[],
-  registrations: Registration[]
+  registrations: Registration[],
 ): PortalAnalytics {
   const live = events.filter((e) => !e.cancelled);
   const liveIds = new Set(live.map((e) => e.id));
@@ -1126,7 +1125,12 @@ export function computeAnalytics(
       const inCategory = live.filter((e) => e.category === category);
       const catTaken = inCategory.reduce((sum, e) => sum + e.taken, 0);
       const catCapacity = inCategory.reduce((sum, e) => sum + e.capacity, 0);
-      return { category, taken: catTaken, capacity: catCapacity, pct: percent(catTaken, catCapacity) };
+      return {
+        category,
+        taken: catTaken,
+        capacity: catCapacity,
+        pct: percent(catTaken, catCapacity),
+      };
     }),
   };
 }
@@ -1145,13 +1149,14 @@ export function findScheduleConflict(
   events: CampusEvent[],
   registrations: Registration[],
   eventId: string,
-  enrollmentId: string
+  enrollmentId: string,
 ): CampusEvent | undefined {
   const target = events.find((e) => e.id === eventId);
   if (!target) return undefined;
   const label = normalizeLabel(target.dateLabel);
   for (const reg of registrations) {
-    if (reg.enrollmentId !== enrollmentId || reg.status !== "Approved" || reg.eventId === eventId) continue;
+    if (reg.enrollmentId !== enrollmentId || reg.status !== "Approved" || reg.eventId === eventId)
+      continue;
     const other = events.find((e) => e.id === reg.eventId);
     if (other && !other.cancelled && normalizeLabel(other.dateLabel) === label) return other;
   }
@@ -1212,8 +1217,8 @@ export function buildIcs(event: CampusEvent, ticketId?: string): string {
         date.getMonth(),
         date.getDate(),
         0,
-        parseEventTime(event.dateLabel) - IST_OFFSET_MINUTES
-      )
+        parseEventTime(event.dateLabel) - IST_OFFSET_MINUTES,
+      ),
     );
     const end = new Date(start.getTime() + EVENT_DURATION_MINUTES * 60_000);
     when.push(`DTSTART:${icsUtcStamp(start)}`, `DTEND:${icsUtcStamp(end)}`);
@@ -1261,7 +1266,10 @@ export function downloadIcs(event: CampusEvent, ticketId?: string): void {
   const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const slug = event.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const slug = event.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
   link.href = url;
   link.download = `${slug || "event"}.ics`;
   document.body.appendChild(link);

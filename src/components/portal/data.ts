@@ -2,12 +2,7 @@ export const KARAD = "/karad.jpg";
 
 export type EventCategory = "Technical" | "Cultural" | "Workshops" | "Competitions";
 
-export const CATEGORIES: EventCategory[] = [
-  "Technical",
-  "Cultural",
-  "Workshops",
-  "Competitions",
-];
+export const CATEGORIES: EventCategory[] = ["Technical", "Cultural", "Workshops", "Competitions"];
 
 export const STUDENT = {
   name: "Eshan Manoj",
@@ -60,19 +55,23 @@ export interface NotificationItem {
 export const COVER_IMAGE_PRESETS = [
   {
     label: "Tech Lab",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
+    image:
+      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
   },
   {
     label: "Auditorium Stage",
-    image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80",
+    image:
+      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80",
   },
   {
     label: "Workshop Studio",
-    image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80",
+    image:
+      "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80",
   },
   {
     label: "Sports / Arena",
-    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
+    image:
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80",
   },
 ] as const;
 
@@ -117,11 +116,7 @@ export function parseEventDate(dateLabel: string): Date | null {
 
 function validatedLocalDate(year: number, month: number, day: number): Date | null {
   const parsed = new Date(year, month, day);
-  if (
-    parsed.getFullYear() !== year ||
-    parsed.getMonth() !== month ||
-    parsed.getDate() !== day
-  ) {
+  if (parsed.getFullYear() !== year || parsed.getMonth() !== month || parsed.getDate() !== day) {
     return null;
   }
   return parsed;
@@ -172,7 +167,7 @@ export function earliestUpcomingEvent(events: CampusEvent[]): CampusEvent | unde
     .map((e) => ({ event: e, date: parseEventDate(e.dateLabel) }))
     .filter(
       (entry): entry is { event: CampusEvent; date: Date } =>
-        entry.date !== null && entry.date.getTime() >= today.getTime()
+        entry.date !== null && entry.date.getTime() >= today.getTime(),
     )
     .sort((a, b) => a.date.getTime() - b.date.getTime())[0]?.event;
 }
@@ -375,4 +370,3 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     kind: "info",
   },
 ];
-

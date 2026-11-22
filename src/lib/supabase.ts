@@ -18,8 +18,7 @@ import {
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as
-  | string
-  | undefined;
+  string | undefined;
 
 let client: SupabaseClient | null = null;
 
@@ -34,7 +33,7 @@ export function isSupabaseConfigured(): boolean {
 export function getSupabase(): SupabaseClient {
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     throw new Error(
-      "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env file."
+      "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env file.",
     );
   }
   client ??= createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -216,7 +215,9 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
 function sortByDate(events: CampusEvent[]): CampusEvent[] {
   const stamp = (event: CampusEvent) => {
     const date = parseEventDate(event.dateLabel);
-    return date ? date.getTime() + parseEventTime(event.dateLabel) * 60_000 : Number.MAX_SAFE_INTEGER;
+    return date
+      ? date.getTime() + parseEventTime(event.dateLabel) * 60_000
+      : Number.MAX_SAFE_INTEGER;
   };
   return [...events].sort((a, b) => stamp(a) - stamp(b));
 }
@@ -260,17 +261,15 @@ async function seedDatabase(): Promise<void> {
   if (eventsError) throw eventsError;
 
   const { error: notificationsError } = await supabase.from("notifications").upsert(
-    INITIAL_NOTIFICATIONS.map(
-      (n): NotificationRow => ({
-        id: n.id,
-        title: n.title,
-        body: n.body,
-        time: n.time,
-        unread: n.unread,
-        kind: n.kind,
-      })
-    ),
-    { onConflict: "id", ignoreDuplicates: true }
+    INITIAL_NOTIFICATIONS.map((n): NotificationRow => ({
+      id: n.id,
+      title: n.title,
+      body: n.body,
+      time: n.time,
+      unread: n.unread,
+      kind: n.kind,
+    })),
+    { onConflict: "id", ignoreDuplicates: true },
   );
   if (notificationsError) throw notificationsError;
 }
@@ -373,7 +372,7 @@ export async function markEventCancelled(eventId: string): Promise<void> {
 /** `createdAt` (ISO) is stored in the text `time` column; it is rendered as "5m ago" on read. */
 export async function insertNotificationRow(
   item: NotificationItem,
-  createdAt: string
+  createdAt: string,
 ): Promise<void> {
   const row: NotificationRow = {
     id: item.id,

@@ -17,7 +17,7 @@ export function QrCode({ value, size = 21, className }: QrCodeProps) {
   };
 
   const grid: boolean[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => false)
+    Array.from({ length: size }, () => false),
   );
   const placeFinder = (row: number, col: number) => {
     for (let r = -1; r <= 7; r++) {
@@ -26,8 +26,7 @@ export function QrCode({ value, size = 21, className }: QrCodeProps) {
         const cc = col + c;
         if (rr < 0 || cc < 0 || rr >= size || cc >= size) continue;
         const inRing = r >= 0 && r <= 6 && c >= 0 && c <= 6;
-        const border =
-          inRing && (r === 0 || r === 6 || c === 0 || c === 6);
+        const border = inRing && (r === 0 || r === 6 || c === 0 || c === 6);
         const core = inRing && r >= 2 && r <= 4 && c >= 2 && c <= 4;
         grid[rr]![cc]! = inRing ? border || core : false;
       }
@@ -38,8 +37,7 @@ export function QrCode({ value, size = 21, className }: QrCodeProps) {
   placeFinder(size - 7, 0);
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
-      const inFinderZone =
-        (r < 8 && c < 8) || (r < 8 && c >= size - 8) || (r >= size - 8 && c < 8);
+      const inFinderZone = (r < 8 && c < 8) || (r < 8 && c >= size - 8) || (r >= size - 8 && c < 8);
       if (!inFinderZone) grid[r]![c]! = rand() < 0.44;
     }
   }
@@ -55,8 +53,10 @@ export function QrCode({ value, size = 21, className }: QrCodeProps) {
       <rect width={size} height={size} fill="white" rx="1" />
       {grid.map((row, r) =>
         row.map((on, c) =>
-          on ? <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill="currentColor" /> : null
-        )
+          on ? (
+            <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill="currentColor" />
+          ) : null,
+        ),
       )}
     </svg>
   );

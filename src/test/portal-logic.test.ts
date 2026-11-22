@@ -21,7 +21,7 @@ describe("portal registration rules", () => {
       [],
       codefusion.id,
       STUDENT.name,
-      STUDENT.division
+      STUDENT.division,
     );
     const after = updated.find((e) => e.id === codefusion.id)!;
     expect(after.taken).toBe(79);
@@ -34,15 +34,15 @@ describe("portal registration rules", () => {
     const base = events();
     const { pass } = registerForEvent(base, [], codefusion.id, STUDENT.name, STUDENT.division);
     expect(() =>
-      registerForEvent(base, [pass], codefusion.id, STUDENT.name, STUDENT.division)
+      registerForEvent(base, [pass], codefusion.id, STUDENT.name, STUDENT.division),
     ).toThrow(/already hold a pass/);
   });
 
   it("refuses registration for a full event (waitlist only)", () => {
     expect(nritya.taken).toBe(nritya.capacity);
-    expect(() =>
-      registerForEvent(events(), [], nritya.id, STUDENT.name, STUDENT.division)
-    ).toThrow(/full/);
+    expect(() => registerForEvent(events(), [], nritya.id, STUDENT.name, STUDENT.division)).toThrow(
+      /full/,
+    );
   });
 
   it("restores exactly one seat when a registration is cancelled", () => {
@@ -52,7 +52,7 @@ describe("portal registration rules", () => {
       [],
       codefusion.id,
       STUDENT.name,
-      STUDENT.division
+      STUDENT.division,
     );
     expect(afterRegister.find((e) => e.id === codefusion.id)!.taken).toBe(79);
     const { events: updated, passes } = cancelRegistration(afterRegister, [pass], codefusion.id);
@@ -63,7 +63,7 @@ describe("portal registration rules", () => {
   it("blocks registration on an emergency-cancelled event", () => {
     const cancelled = cancelEvent(events(), codefusion.id);
     expect(() =>
-      registerForEvent(cancelled, [], codefusion.id, STUDENT.name, STUDENT.division)
+      registerForEvent(cancelled, [], codefusion.id, STUDENT.name, STUDENT.division),
     ).toThrow(/cancelled/);
   });
 
@@ -97,18 +97,39 @@ describe("event catalog", () => {
         venue,
         taken,
         capacity,
-      ])
+      ]),
     ).toEqual([
       ["CodeFusion 2.0", "Technical", "25 Nov 2026, 10:00 AM", "Seminar Hall, SOC", 78, 100],
       ["Nritya Utsav 2026", "Cultural", "28 Nov 2026, 11:00 AM", "Open Air Auditorium", 150, 150],
-      ["UI/UX Design Workshop", "Workshops", "02 Dec 2026, 2:00 PM", "Lab 3, Computer Dept", 35, 40],
-      ["Battle of Minds - Quiz", "Competitions", "05 Dec 2026, 1:00 PM", "Ramanujan Seminar Hall", 12, 60],
+      [
+        "UI/UX Design Workshop",
+        "Workshops",
+        "02 Dec 2026, 2:00 PM",
+        "Lab 3, Computer Dept",
+        35,
+        40,
+      ],
+      [
+        "Battle of Minds - Quiz",
+        "Competitions",
+        "05 Dec 2026, 1:00 PM",
+        "Ramanujan Seminar Hall",
+        12,
+        60,
+      ],
       ["RobotWars Arena", "Technical", "08 Dec 2026, 9:00 AM", "Innovation Lab", 18, 50],
       ["Acoustic Unplugged", "Cultural", "10 Dec 2026, 6:00 PM", "Amphitheatre", 45, 120],
       ["E-Summit: Pitch Tank", "Competitions", "12 Dec 2026, 4:00 PM", "Main Auditorium", 20, 80],
       ["Cloud & DevOps Bootcamp", "Workshops", "15 Dec 2026, 9:00 AM", "Lab 5, IT Block", 28, 40],
       ["CyberSec CTF Challenge", "Technical", "17 Dec 2026, 11:00 AM", "Cyber Lab, SOC", 42, 60],
-      ["Persona Photography Walk", "Cultural", "19 Dec 2026, 7:30 AM", "Rajbaugh Campus Dome", 25, 30],
+      [
+        "Persona Photography Walk",
+        "Cultural",
+        "19 Dec 2026, 7:30 AM",
+        "Rajbaugh Campus Dome",
+        25,
+        30,
+      ],
       ["GenAI & LLM Hackathon", "Technical", "22 Dec 2026, 10:00 AM", "Innovation Center", 85, 100],
       ["Design Thinking Sprint", "Workshops", "26 Dec 2026, 2:00 PM", "Design Studio B", 19, 35],
     ]);
@@ -116,16 +137,16 @@ describe("event catalog", () => {
 
   it("includes the specified cover images for the four added events", () => {
     expect(INITIAL_EVENTS.find((e) => e.title === "CyberSec CTF Challenge")?.image).toContain(
-      "photo-1550751827-4bd374c3f58b"
+      "photo-1550751827-4bd374c3f58b",
     );
     expect(INITIAL_EVENTS.find((e) => e.title === "Persona Photography Walk")?.image).toContain(
-      "photo-1516035069371-29a1b244cc32"
+      "photo-1516035069371-29a1b244cc32",
     );
     expect(INITIAL_EVENTS.find((e) => e.title === "GenAI & LLM Hackathon")?.image).toContain(
-      "photo-1677442136019-21780ecad995"
+      "photo-1677442136019-21780ecad995",
     );
     expect(INITIAL_EVENTS.find((e) => e.title === "Design Thinking Sprint")?.image).toContain(
-      "photo-1531403009284-440f080d1e12"
+      "photo-1531403009284-440f080d1e12",
     );
   });
 

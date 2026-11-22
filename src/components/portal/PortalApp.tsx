@@ -106,23 +106,26 @@ export function PortalApp() {
   // A brand-new Enrollment ID therefore starts with zero passes.
   const myRegistrations = useMemo(
     () => (userId ? registrations.filter((r) => r.enrollmentId === userId) : []),
-    [registrations, userId]
+    [registrations, userId],
   );
   const approvedPasses = useMemo(
     () => myRegistrations.filter((r) => r.status === "Approved"),
-    [myRegistrations]
+    [myRegistrations],
   );
   // Only Approved rows count as "registered" on the Discovery / Calendar cards;
   // a waitlisted student still sees the "Join Waitlist" button for that event.
-  const registeredIds = useMemo(() => new Set(approvedPasses.map((p) => p.eventId)), [approvedPasses]);
+  const registeredIds = useMemo(
+    () => new Set(approvedPasses.map((p) => p.eventId)),
+    [approvedPasses],
+  );
   const myWaitlistPositions = useMemo(
     () => waitlistPositions(registrations, userId),
-    [registrations, userId]
+    [registrations, userId],
   );
   // Notifications addressed to another ID (suffix after "@" in the row id) stay hidden.
   const visibleNotifications = useMemo(
     () => notifications.filter((n) => isNotificationVisibleTo(n.id, userId)),
-    [notifications, userId]
+    [notifications, userId],
   );
   const unreadCount = visibleNotifications.filter((n) => n.unread).length;
 
@@ -139,7 +142,7 @@ export function PortalApp() {
     async function load() {
       if (!isSupabaseConfigured()) {
         console.warn(
-          "VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY are missing — using local demo data."
+          "VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY are missing — using local demo data.",
         );
         setEvents(INITIAL_EVENTS);
         setNotifications(INITIAL_NOTIFICATIONS);
@@ -159,7 +162,9 @@ export function PortalApp() {
       } catch (err) {
         if (ignore) return;
         console.error("Supabase load failed", err);
-        toast.error(`Couldn't load from Supabase (${getErrorMessage(err)}). Showing local demo data.`);
+        toast.error(
+          `Couldn't load from Supabase (${getErrorMessage(err)}). Showing local demo data.`,
+        );
         setEvents(INITIAL_EVENTS);
         setNotifications(INITIAL_NOTIFICATIONS);
       } finally {
@@ -190,7 +195,7 @@ export function PortalApp() {
         });
       }
     },
-    [dbEnabled]
+    [dbEnabled],
   );
 
   /** Re-reads events + registrations (used after a conflicting write, e.g. another tab got there first). */
@@ -230,12 +235,12 @@ export function PortalApp() {
             time: "Just now",
             kind: "info",
           },
-          promoted.enrollmentId
+          promoted.enrollmentId,
         );
         if (isMe) toast.success(`A seat opened up — you're confirmed for ${event.title}!`);
       }
     },
-    [addNotification, userId]
+    [addNotification, userId],
   );
 
   /* ---------------------------------------------------------------- */
@@ -246,7 +251,9 @@ export function PortalApp() {
   const handleRegister = useCallback(
     async (event: CampusEvent) => {
       if (!isStudent || !userId) {
-        toast.warning("Registrations are made from the Student account — log out and sign in as a student.");
+        toast.warning(
+          "Registrations are made from the Student account — log out and sign in as a student.",
+        );
         return;
       }
       if (registeringRef.current) return;
@@ -266,7 +273,7 @@ export function PortalApp() {
               time: "Just now",
               kind: "info",
             },
-            userId
+            userId,
           );
           toast.info(`${event.title} is full — you're Waitlist #${outcome.position}.`);
         } else {
@@ -278,7 +285,7 @@ export function PortalApp() {
               time: "Just now",
               kind: "info",
             },
-            userId
+            userId,
           );
           toast.success(`Registered for ${event.title}! Your digital gate pass is ready.`);
         }
@@ -292,7 +299,17 @@ export function PortalApp() {
         registeringRef.current = false;
       }
     },
-    [isStudent, userId, attendeeInfo, dbEnabled, events, registrations, applyMutation, addNotification, syncFromDb]
+    [
+      isStudent,
+      userId,
+      attendeeInfo,
+      dbEnabled,
+      events,
+      registrations,
+      applyMutation,
+      addNotification,
+      syncFromDb,
+    ],
   );
 
   // 5. Schedule-conflict check runs before any seat is booked; it warns but never blocks.
@@ -307,18 +324,20 @@ export function PortalApp() {
       }
       void handleRegister(event);
     },
-    [events, registrations, userId, handleRegister]
+    [events, registrations, userId, handleRegister],
   );
 
   const openRegisterModal = useCallback(
     (event: CampusEvent) => {
       if (!isStudent) {
-        toast.warning("Registrations are made from the Student account — log out and sign in as a student.");
+        toast.warning(
+          "Registrations are made from the Student account — log out and sign in as a student.",
+        );
         return;
       }
       setModal({ eventId: event.id, stage: "confirm" });
     },
-    [isStudent]
+    [isStudent],
   );
 
   const handleViewPass = useCallback(
@@ -330,19 +349,21 @@ export function PortalApp() {
       }
       setModal({ eventId: event.id, stage: "pass" });
     },
-    [registeredIds, openRegisterModal]
+    [registeredIds, openRegisterModal],
   );
 
   // Full event -> "Join Waitlist": same pipeline, it just books a Waitlisted row.
   const handleJoinWaitlist = useCallback(
     (event: CampusEvent) => {
       if (!isStudent) {
-        toast.warning("Waitlists are joined from the Student account — log out and sign in as a student.");
+        toast.warning(
+          "Waitlists are joined from the Student account — log out and sign in as a student.",
+        );
         return;
       }
       requestRegister(event);
     },
-    [isStudent, requestRegister]
+    [isStudent, requestRegister],
   );
 
   // 3. Cancel: delete the row, free the seat and auto-promote the earliest waitlisted student.
@@ -352,7 +373,8 @@ export function PortalApp() {
         toast.warning("Only the student can cancel their own registration.");
         return;
       }
-      const wasWaitlisted = findRegistration(registrations, event.id, userId)?.status === "Waitlisted";
+      const wasWaitlisted =
+        findRegistration(registrations, event.id, userId)?.status === "Waitlisted";
       try {
         const result = dbEnabled
           ? await removeRegistrationRemote(events, registrations, event.id, userId)
@@ -367,7 +389,7 @@ export function PortalApp() {
               time: "Just now",
               kind: "info",
             },
-            userId
+            userId,
           );
           toast.info(`You left the waitlist for ${event.title}.`);
         } else {
@@ -381,7 +403,7 @@ export function PortalApp() {
               time: "Just now",
               kind: "alert",
             },
-            userId
+            userId,
           );
           toast.info(`Registration cancelled for ${event.title}. 1 seat restored.`);
         }
@@ -389,7 +411,7 @@ export function PortalApp() {
         toast.error(getErrorMessage(err, "Couldn't cancel the registration."));
       }
     },
-    [isStudent, userId, dbEnabled, events, registrations, applyMutation, addNotification]
+    [isStudent, userId, dbEnabled, events, registrations, applyMutation, addNotification],
   );
 
   /* ---------------------------------------------------------------- */
@@ -432,7 +454,7 @@ export function PortalApp() {
         return "failed";
       }
     },
-    [role, dbEnabled, events, addNotification, syncFromDb]
+    [role, dbEnabled, events, addNotification, syncFromDb],
   );
 
   // 3b. Emergency cancel (Administrator only): set `cancelled = true` + insert an alert notification.
@@ -458,14 +480,16 @@ export function PortalApp() {
         toast.error(`Couldn't cancel ${event.title}: ${getErrorMessage(err)}`);
       }
     },
-    [role, dbEnabled, events, addNotification]
+    [role, dbEnabled, events, addNotification],
   );
 
   /** Runs one participant-management operation behind the RBAC check; returns its result or null on failure. */
   const runOrganizerAction = useCallback(
     async <T extends MutationResult>(perform: () => Promise<T> | T): Promise<T | null> => {
       if (!hasPermission(role, "manageParticipants")) {
-        toast.error("Participant management requires the Faculty / Club Organizer or Administrator role.");
+        toast.error(
+          "Participant management requires the Faculty / Club Organizer or Administrator role.",
+        );
         return null;
       }
       try {
@@ -477,7 +501,7 @@ export function PortalApp() {
         return null;
       }
     },
-    [role, applyMutation]
+    [role, applyMutation],
   );
 
   // Addressed to the registrant's Enrollment ID, so only that student sees it.
@@ -485,15 +509,27 @@ export function PortalApp() {
     (registration: Registration, title: string, body: string, kind: NotificationItem["kind"]) => {
       addNotification({ title, body, time: "Just now", kind }, registration.enrollmentId);
     },
-    [addNotification]
+    [addNotification],
   );
 
   const handleApprove = useCallback(
     async (event: CampusEvent, registration: Registration) => {
       const result = await runOrganizerAction(() =>
         dbEnabled
-          ? setRegistrationStatusRemote(events, registrations, event.id, registration.enrollmentId, "Approved")
-          : changeRegistrationStatus(events, registrations, event.id, registration.enrollmentId, "Approved")
+          ? setRegistrationStatusRemote(
+              events,
+              registrations,
+              event.id,
+              registration.enrollmentId,
+              "Approved",
+            )
+          : changeRegistrationStatus(
+              events,
+              registrations,
+              event.id,
+              registration.enrollmentId,
+              "Approved",
+            ),
       );
       if (!result) return;
       toast.success(`${registration.enrollmentId} approved for ${event.title}.`);
@@ -501,18 +537,30 @@ export function PortalApp() {
         registration,
         `Registration approved: ${event.title}`,
         `Your pass ${registration.ticketId} is now valid.`,
-        "info"
+        "info",
       );
     },
-    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant]
+    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant],
   );
 
   const handleReject = useCallback(
     async (event: CampusEvent, registration: Registration) => {
       const result = await runOrganizerAction(() =>
         dbEnabled
-          ? setRegistrationStatusRemote(events, registrations, event.id, registration.enrollmentId, "Rejected")
-          : changeRegistrationStatus(events, registrations, event.id, registration.enrollmentId, "Rejected")
+          ? setRegistrationStatusRemote(
+              events,
+              registrations,
+              event.id,
+              registration.enrollmentId,
+              "Rejected",
+            )
+          : changeRegistrationStatus(
+              events,
+              registrations,
+              event.id,
+              registration.enrollmentId,
+              "Rejected",
+            ),
       );
       if (!result) return;
       toast.info(`${registration.enrollmentId} was rejected for ${event.title}.`);
@@ -520,10 +568,10 @@ export function PortalApp() {
         registration,
         `Registration rejected: ${event.title}`,
         "The organizer declined your registration for this event.",
-        "alert"
+        "alert",
       );
     },
-    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant]
+    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant],
   );
 
   const handleRemove = useCallback(
@@ -531,22 +579,22 @@ export function PortalApp() {
       const result = await runOrganizerAction(() =>
         dbEnabled
           ? removeRegistrationRemote(events, registrations, event.id, registration.enrollmentId)
-          : removeAndPromote(events, registrations, event.id, registration.enrollmentId)
+          : removeAndPromote(events, registrations, event.id, registration.enrollmentId),
       );
       if (!result) return;
       toast.info(
         result.promoted.length > 0
           ? `${registration.enrollmentId} removed — ${result.promoted[0]!.enrollmentId} promoted from the waitlist.`
-          : `${registration.enrollmentId} removed from ${event.title}.`
+          : `${registration.enrollmentId} removed from ${event.title}.`,
       );
       notifyRegistrant(
         registration,
         `Removed from ${event.title}`,
         "An organizer removed your registration for this event.",
-        "alert"
+        "alert",
       );
     },
-    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant]
+    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant],
   );
 
   // 4. Gate check-in toggle (writes checked_in + checked_in_at).
@@ -557,19 +605,24 @@ export function PortalApp() {
           ? setCheckInRemote(events, event.id, registration.enrollmentId, checkedIn)
           : {
               events,
-              registrations: setCheckIn(registrations, event.id, registration.enrollmentId, checkedIn),
+              registrations: setCheckIn(
+                registrations,
+                event.id,
+                registration.enrollmentId,
+                checkedIn,
+              ),
               promoted: [],
-            }
+            },
       );
       if (result) {
         toast.success(
           checkedIn
             ? `${registration.enrollmentId} checked in to ${event.title}.`
-            : `Check-in undone for ${registration.enrollmentId}.`
+            : `Check-in undone for ${registration.enrollmentId}.`,
         );
       }
     },
-    [runOrganizerAction, dbEnabled, events, registrations]
+    [runOrganizerAction, dbEnabled, events, registrations],
   );
 
   const handleVerifyTicket = useCallback(
@@ -583,14 +636,19 @@ export function PortalApp() {
           ? setCheckInRemote(events, event.id, check.registration.enrollmentId, true)
           : {
               events,
-              registrations: setCheckIn(registrations, event.id, check.registration.enrollmentId, true),
+              registrations: setCheckIn(
+                registrations,
+                event.id,
+                check.registration.enrollmentId,
+                true,
+              ),
               promoted: [],
-            }
+            },
       );
       if (!result) return { ok: false, message: "Couldn't update the check-in. Please try again." };
       return { ok: true, message: `Checked in: ${check.registration.enrollmentId}.` };
     },
-    [registrations, runOrganizerAction, dbEnabled, events]
+    [registrations, runOrganizerAction, dbEnabled, events],
   );
 
   // Walk-in / manual attendee: same register-or-waitlist pipeline, no schedule prompt.
@@ -599,24 +657,26 @@ export function PortalApp() {
       const outcome = await runOrganizerAction(() =>
         dbEnabled
           ? registerOrWaitlistRemote(events, registrations, event.id, who)
-          : registerOrWaitlist(events, registrations, event.id, who)
+          : registerOrWaitlist(events, registrations, event.id, who),
       );
       if (!outcome) return;
       toast.success(
         outcome.waitlisted
           ? `${who.enrollmentId} added to the waitlist — Waitlist #${outcome.position}.`
-          : `${who.enrollmentId} registered for ${event.title}.`
+          : `${who.enrollmentId} registered for ${event.title}.`,
       );
       notifyRegistrant(
         outcome.registration,
-        outcome.waitlisted ? `Waitlist joined: ${event.title}` : `Gate pass issued for ${event.title}`,
+        outcome.waitlisted
+          ? `Waitlist joined: ${event.title}`
+          : `Gate pass issued for ${event.title}`,
         outcome.waitlisted
           ? `An organizer added you — Waitlist #${outcome.position}.`
           : `An organizer registered you. Ticket ${outcome.registration.ticketId}.`,
-        "info"
+        "info",
       );
     },
-    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant]
+    [runOrganizerAction, dbEnabled, events, registrations, notifyRegistrant],
   );
 
   // 6. Mark as read: update `unread = false` in `notifications`.
@@ -636,7 +696,7 @@ export function PortalApp() {
       setActiveTab(tab);
       if (tab === "My Passes & Alerts") markAllRead();
     },
-    [markAllRead]
+    [markAllRead],
   );
 
   // TC01: LoginScreen only calls this after the ID and password were validated.
