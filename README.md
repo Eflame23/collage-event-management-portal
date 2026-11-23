@@ -114,7 +114,7 @@ Agile Management| Jira / Trello
 
 🏗️ System Modules
 
-1. Student Module
+1. Student Modules
 
 Handles student-side event discovery, searching, event details, and registration.
 
