@@ -19,6 +19,7 @@ import {
   ROLE_ID_LABELS,
   ROLE_LABELS,
   buildSession,
+  idFormatError,
   validateCredentials,
   type Role,
   type SessionProfile,
@@ -50,6 +51,7 @@ export function LoginScreen({ theme, onThemeToggle, onSignIn }: LoginScreenProps
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [idError, setIdError] = useState<string | null>(null);
   const idRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -65,12 +67,21 @@ export function LoginScreen({ theme, onThemeToggle, onSignIn }: LoginScreenProps
     setPassword("");
     setShowPassword(false);
     setError(null);
+    setIdError(null);
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Student IDs must match the Enrollment ID format; the error sits under the ID field.
+    const formatError = idFormatError(role, userId);
+    if (formatError) {
+      setIdError(formatError);
+      setError(null);
+      idRef.current?.focus();
+      return;
+    }
     // TC02: an empty / too-short ID or a wrong password never gets past this check.
-    if (!validateCredentials(userId, password)) {
+    if (!validateCredentials(role, userId, password)) {
       setError(AUTH_ERROR_MESSAGE);
       if (!userId.trim()) idRef.current?.focus();
       else {
@@ -81,6 +92,7 @@ export function LoginScreen({ theme, onThemeToggle, onSignIn }: LoginScreenProps
     }
     // TC01: build the session from whatever ID was typed; PortalApp stores it.
     setError(null);
+    setIdError(null);
     onSignIn(buildSession(role, userId));
   };
 
@@ -216,16 +228,27 @@ export function LoginScreen({ theme, onThemeToggle, onSignIn }: LoginScreenProps
                   onChange={(e) => {
                     setUserId(e.target.value);
                     if (error) setError(null);
+                    if (idError) setIdError(null);
                   }}
                   placeholder={ID_PLACEHOLDERS[role]}
-                  aria-invalid={error ? true : undefined}
-                  aria-describedby={error ? "login-error" : undefined}
+                  aria-invalid={error || idError ? true : undefined}
+                  aria-describedby={idError ? "login-id-error" : error ? "login-error" : undefined}
                   className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
-                    error
+                    error || idError
                       ? "border-destructive focus:border-destructive focus:ring-destructive/25"
                       : "border-portal-hairline focus:border-[#B8860B] focus:ring-[#B8860B]/25"
                   }`}
                 />
+                {idError && (
+                  <p
+                    id="login-id-error"
+                    role="alert"
+                    className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-destructive"
+                  >
+                    <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+                    {idError}
+                  </p>
+                )}
               </div>
 
               <div>

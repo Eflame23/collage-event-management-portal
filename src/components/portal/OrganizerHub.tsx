@@ -29,11 +29,15 @@ import {
   attendeeFromEnrollmentId,
   canAccessOrganizerHub,
   DUPLICATE_EVENT_TITLE_MESSAGE,
+  INVALID_STUDENT_ID_MESSAGE,
+  PAST_EVENT_DATE_MESSAGE,
   computeAnalytics,
   groupByEnrollment,
   hasPermission,
   isDuplicateEventTitle,
-  isValidLoginId,
+  isPastEventDate,
+  isValidStudentEnrollmentId,
+  localIsoDate,
   normalizeId,
   sessionSummary,
   waitlistPosition,
@@ -45,7 +49,7 @@ import {
 } from "./portal-logic";
 
 /** Result of a publish attempt; the form only resets after "published". */
-export type PublishOutcome = "published" | "duplicate" | "failed";
+export type PublishOutcome = "published" | "duplicate" | "past_date" | "failed";
 
 export interface VerifyResult {
   ok: boolean;
@@ -143,6 +147,7 @@ function OrganizerWorkspace({
   const [coverImage, setCoverImage] = useState(COVER_IMAGE_PRESETS[0]?.image ?? "");
   const [participantsEventId, setParticipantsEventId] = useState<string | null>(null);
   const [titleError, setTitleError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
 
   const canPublishEvents = hasPermission(role, "publishEvents");
@@ -153,16 +158,17 @@ function OrganizerWorkspace({
     : undefined;
 
   const canPublish =
-    canPublishEvents && title.trim() && venue.trim() && date && capacity > 0 && coverImage.trim();
+    canPublishEvents && title.trim() && venue.trim() && date && capacity > 0 && capacity <= 999 && coverImage.trim();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canPublish || publishing) return;
-    if (isDuplicateEventTitle(events, title)) {
-      setTitleError(DUPLICATE_EVENT_TITLE_MESSAGE);
-      return;
-    }
-    setTitleError(null);
+    // Validate everything first so both problems show at once.
+    const duplicate = isDuplicateEventTitle(events, title);
+    const pastDate = isPastEventDate(date);
+    setTitleError(duplicate ? DUPLICATE_EVENT_TITLE_MESSAGE : null);
+    setDateError(pastDate ? PAST_EVENT_DATE_MESSAGE : null);
+    if (duplicate || pastDate) return;
     setPublishing(true);
     let outcome: PublishOutcome;
     try {
@@ -179,6 +185,10 @@ function OrganizerWorkspace({
     }
     if (outcome === "duplicate") {
       setTitleError(DUPLICATE_EVENT_TITLE_MESSAGE);
+      return;
+    }
+    if (outcome === "past_date") {
+      setDateError(PAST_EVENT_DATE_MESSAGE);
       return;
     }
     if (outcome !== "published") return;
@@ -259,6 +269,7 @@ function OrganizerWorkspace({
 
             <form
               onSubmit={submit}
+              noValidate
               className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
             >
               <Field label="Event Title">
@@ -311,9 +322,24 @@ function OrganizerWorkspace({
                   required
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className={inputClass}
+                  min={localIsoDate()}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    if (dateError) setDateError(null);
+                  }}
+                  aria-invalid={dateError ? true : undefined}
+                  aria-describedby={dateError ? "event-date-error" : undefined}
+                  className={`${inputClass} ${dateError ? "border-destructive focus:border-destructive focus:ring-destructive/25" : ""}`}
                 />
+                {dateError && (
+                  <span
+                    id="event-date-error"
+                    role="alert"
+                    className="mt-1.5 block text-xs font-semibold text-destructive"
+                  >
+                    {dateError}
+                  </span>
+                )}
               </Field>
               <Field label="Capacity">
                 <input
@@ -699,8 +725,8 @@ function ParticipantsDrawer({
 
   const addWalkIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidLoginId(walkId)) {
-      setWalkError("Enter a valid Enrollment ID (at least 4 letters or digits, no spaces).");
+    if (!isValidStudentEnrollmentId(walkId)) {
+      setWalkError(INVALID_STUDENT_ID_MESSAGE);
       return;
     }
     setWalkError(null);

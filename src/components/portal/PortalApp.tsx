@@ -19,6 +19,7 @@ import {
   cancelEvent,
   DUPLICATE_EVENT_TITLE_MESSAGE,
   DuplicateEventTitleError,
+  PAST_EVENT_DATE_MESSAGE,
   cancelEventRemote,
   clearSession,
   changeRegistrationStatus,
@@ -27,6 +28,7 @@ import {
   findScheduleConflict,
   hasPermission,
   isDuplicateEventTitle,
+  isPastEventDate,
   isNotificationVisibleTo,
   makeAttendeeTicketId,
   makeNotificationId,
@@ -425,7 +427,12 @@ export function PortalApp() {
         toast.error("Publishing events requires the Faculty or Administrator role.");
         return "failed";
       }
-      // Case-insensitive duplicate guard: nothing is inserted and no card is added.
+      // Past dates are blocked even if the date input's `min` was bypassed.
+      if (isPastEventDate(draft.dateLabel)) {
+        toast.error(PAST_EVENT_DATE_MESSAGE);
+        return "past_date";
+      }
+      // Case-insensitive duplicate guard (active events only): nothing is inserted and no card is added.
       if (isDuplicateEventTitle(events, draft.title)) {
         toast.error(DUPLICATE_EVENT_TITLE_MESSAGE);
         return "duplicate";

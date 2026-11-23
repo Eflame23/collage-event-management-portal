@@ -113,10 +113,44 @@ export class DuplicateEventTitleError extends Error {
   }
 }
 
-/** True when an event with the same title (trimmed, case-insensitive) already exists. */
+/**
+ * True when an ACTIVE event with the same title (trimmed, case-insensitive) exists.
+ * Cancelled events don't count, so their titles can be published again.
+ */
 export function isDuplicateEventTitle(events: CampusEvent[], title: string): boolean {
   const wanted = title.trim().toLowerCase();
-  return events.some((ev) => ev.title.trim().toLowerCase() === wanted);
+  return events.some((ev) => !ev.cancelled && ev.title.trim().toLowerCase() === wanted);
+}
+
+export const PAST_EVENT_DATE_MESSAGE = "Event date cannot be in the past.";
+
+/** Midnight at the start of the local calendar day containing `now`. */
+export function startOfToday(now: Date = new Date()): Date {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/** Today's LOCAL date as YYYY-MM-DD, for `<input type="date" min>` (toISOString would give the UTC day). */
+export function localIsoDate(now: Date = new Date()): string {
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${mm}-${dd}`;
+}
+
+/** True when an ISO date (YYYY-MM-DD) or "DD Mon YYYY, …" label falls before today's local date. */
+export function isPastEventDate(value: string, now: Date = new Date()): boolean {
+  const parsed = parseEventDate(value);
+  return parsed !== null && parsed.getTime() < startOfToday(now).getTime();
+}
+
+/**
+ * Ticket codes are derived from the title, and ticket ids from the code, so a re-used
+ * (cancelled) title must not reuse its old code: pick the first free variant.
+ */
+function uniqueEventCode(events: CampusEvent[], title: string): string {
+  const taken = new Set(events.map((ev) => ev.code.toUpperCase()));
+  let code = makeEventCode(title);
+  for (let n = 2; taken.has(code.toUpperCase()); n++) code = makeEventCode(`${title}#${n}`);
+  return code;
 }
 
 /** Prepends a freshly published event to the grid. Throws DuplicateEventTitleError on a repeated title. */
@@ -130,7 +164,7 @@ export function publishEvent(events: CampusEvent[], draft: EventDraft): CampusEv
   };
   const newEvent: CampusEvent = {
     id: `evt-${hashString(draft.title + draft.dateLabel)}-${events.length}`,
-    code: makeEventCode(draft.title),
+    code: uniqueEventCode(events, draft.title),
     title: draft.title,
     category: draft.category,
     description: `Newly published ${draft.category.toLowerCase()} event hosted at ${draft.venue}.`,
@@ -267,6 +301,32 @@ export function isValidLoginId(raw: string): boolean {
   return /^[A-Z0-9]{4,}$/.test(normalizeId(raw));
 }
 
+/** Student Enrollment IDs: ADT + 2-digit year + 3-4 letter school/program code + 4-digit serial. */
+const STUDENT_ID_PATTERN = /^ADT\d{2}[A-Z]{3,4}\d{4}$/i;
+
+export const INVALID_STUDENT_ID_MESSAGE =
+  "Invalid Enrollment ID format. Must end with 4 digits (e.g., ADT24SOCB0621).";
+
+export function isValidStudentEnrollmentId(raw: string): boolean {
+  return STUDENT_ID_PATTERN.test(raw.trim());
+}
+
+/** Role-aware ID check: every role needs 4+ alphanumerics; students must also match the Enrollment ID format. */
+export function isValidIdForRole(role: Role, raw: string): boolean {
+  return isValidLoginId(raw) && (role !== "student" || isValidStudentEnrollmentId(raw));
+}
+
+/**
+ * Format error to show under the ID field, or null. Empty input is left to the
+ * generic credentials error, so a blank ID never reveals the expected format.
+ */
+export function idFormatError(role: Role, raw: string): string | null {
+  if (role === "student" && raw.trim() !== "" && !isValidStudentEnrollmentId(raw)) {
+    return INVALID_STUDENT_ID_MESSAGE;
+  }
+  return null;
+}
+
 /** Builds the session for ANY valid ID entered on the login screen. */
 export function buildSession(role: Role, rawId: string): SessionProfile {
   const cleanId = normalizeId(rawId);
@@ -313,8 +373,8 @@ export function validatePassword(input: string): boolean {
 }
 
 /** TC01 / TC02: a valid ID (4+ alphanumerics) AND the portal PIN. */
-export function validateCredentials(rawId: string, password: string): boolean {
-  return isValidLoginId(rawId) && validatePassword(password);
+export function validateCredentials(role: Role, rawId: string, password: string): boolean {
+  return isValidIdForRole(role, rawId) && validatePassword(password);
 }
 
 export const SESSION_STORAGE_KEY = "mitadt.portal.session";
@@ -336,7 +396,9 @@ export function readSession(): SessionProfile | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { role?: unknown; userId?: unknown };
     const role = ROLES.find((r) => r === parsed.role);
-    if (!role || typeof parsed.userId !== "string" || !isValidLoginId(parsed.userId)) return null;
+    if (!role || typeof parsed.userId !== "string" || !isValidIdForRole(role, parsed.userId)) {
+      return null;
+    }
     return buildSession(role, parsed.userId);
   } catch {
     return null;
