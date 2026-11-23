@@ -2,15 +2,15 @@ College Event Management Portal
 
 Agile Transformation – Final Jury Project
 
-📌 Project Overview
+Project Overview
 
 The College Event Management Portal is a centralized platform designed to simplify how college events are created, announced, discovered, and managed. It provides a common platform for students to explore upcoming events and register for them, while organizers can create events, update event details, and manage participant registrations.
 
 The portal aims to replace scattered event announcements and manual registration processes with a more organized, efficient, and accessible system.
 
----
 
-🎯 Problem Statement
+
+Problem Statement
 
 Currently, college event information and registrations are often distributed across multiple channels, making it difficult for students to discover events and for organizers to maintain participant records.
 
@@ -21,9 +21,9 @@ The proposed system addresses the following problems:
 - Organizers lack a centralized platform for managing participants.
 - Manual registration makes tracking participants and event capacity difficult.
 
----
 
-🎯 Objectives
+
+Objectives
 
 - Centralize college event creation, announcements, and discovery.
 - Allow students to browse events and view event details.
@@ -34,9 +34,9 @@ The proposed system addresses the following problems:
 - Manage event capacity and prevent duplicate registrations.
 - Provide registration confirmations and notifications.
 
----
 
-👥 User Roles
+
+User Roles
 
 1. Student
 
@@ -58,7 +58,7 @@ Organizers can:
 - View registered participants.
 - Track registrations for their events.
 
----
+
 
 ✨ Key Features
 
