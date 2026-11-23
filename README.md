@@ -22,3 +22,6 @@ Instant Seat Booking & QR Gate Passes: Generates unique ticket IDs (`MIT-ADT-202
 Database-Level Duplicate Prevention (`TC06` / `BUG-01`): Enforces `UNIQUE(event_id, enrollment_id)` in PostgreSQL alongside UI validation so a student cannot double-book the same event.
 Smart Waitlist Auto-Promotion: When an event reaches capacity, additional registrations enter `Waitlisted` status and automatically promote in FIFO order if a confirmed participant cancels.
 Schedule Conflict Detection: Warns students before booking events that overlap in date/time.
+
+
+
