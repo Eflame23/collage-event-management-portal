@@ -8,7 +8,7 @@ Routing & Build	TanStack Start / Router, Vite	Fast client-side transitions, SSR 
 Backend & Database	Supabase (PostgreSQL)	Relational persistence for `events`, `registrations`, and `notifications` with Foreign Key integrity and database-level `UNIQUE` constraints
 Authentication & RBAC	Dynamic Role-Based Access Control (`sessionStorage`)	Three-role session isolation (Student, Faculty, Administrator) keyed dynamically by Enrollment / Employee / Admin ID
 DevOps & Hosting	Git, GitHub, Vercel	Automated CI/CD deployment pipeline on every push to `main`
----
+
 Core Features
 1. Dynamic Role-Based Authentication (`LoginScreen.tsx` & `Header.tsx`)
 Three-Role Access Control: Supports Student, Faculty, and Administrator login tabs with dynamic ID-based session mapping (`sessionStorage`).
